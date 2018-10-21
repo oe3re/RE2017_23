@@ -1,0 +1,4426 @@
+Microsoft (R) Macro Assembler Version 14.10.25019.0	    08/19/17 15:00:36
+PocketTanks.asm						     Page 1 - 1
+
+
+
+				INCLUDE Irvine32.inc
+			      C ; Include file for Irvine32.lib             (Irvine32.inc)
+			      C 
+			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
+			      C 
+			      C INCLUDE SmallWin.inc		; MS-Windows prototypes, structures, and constants
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C INCLUDE VirtualKeys.inc
+			      C ; VirtualKeys.inc
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C 
+			      C .NOLIST
+			      C .LIST
+			      C 
+				INCLUDE macros.inc
+			      C .NOLIST
+			      C .LIST
+			      C 
+
+				.386
+				.model flat,stdcall
+PocketTanks.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
+				.stack 9192
+				ExitProcess proto,dwExitCode:dword
+
+ 00000000			.data 
+ 00000000 16			    donja_granica BYTE 16h
+ 00000001 00			    X BYTE 0
+ 00000002 0000			    Y word   0
+ 00000004 01			    xt1 BYTE 1
+ 00000005 000A			    yt1 WORD 0ah
+ 00000007 01			    xt2 BYTE 1
+ 00000008 0046			    yt2 WORD 46h
+ 0000000A 00			    xgr BYTE 0
+ 0000000B 0000			    ygr WORD 0
+ 0000000D 00			    x_bilo_0 BYTE 0
+ 0000000E 0000			    ugao1 WORD 0h
+ 00000010 0000			    ugao2 WORD 0h
+ 00000012 0A			    step BYTE 0Ah
+ 00000013 00			    Y1 BYTE 0 
+ 00000014 0100			    zed WORD 256d
+ 00000016 0050			    pom WORD 50h
+ 00000018  000008C0 [		    niz byte 2240 DUP (0)
+	    00
+	   ]
+ 000008D8 1E			    kasnjenje BYTE 30d
+ 000008D9 0A			    zivot1 BYTE 10
+ 000008DA 0A			    zivot2 BYTE 10
+ 000008DB 00			    snaga1 BYTE 0
+ 000008DC 00			    snaga2 BYTE 0
+ 000008DD 00			    igra BYTE 0
+ 000008DE 00			    ugao_znak1 BYTE 0h
+ 000008DF 00			    ugao_znak2 BYTE 0h
+ 000008E0 01			    potez BYTE 1
+ 000008E1 55 67 61 6F 20	    str1 BYTE "Ugao topa1:", 0
+	   74 6F 70 61 31
+	   3A 00
+ 000008ED 55 67 61 6F 20	    str2 BYTE "Ugao topa2:", 0
+	   74 6F 70 61 32
+	   3A 00
+ 000008F9 00			    karakter BYTE 0
+ 000008FA 20 20 20 20 20	    str3 BYTE "          ",0
+	   20 20 20 20 20
+	   00
+ 00000905 50 6F 62 65 64	    str4 BYTE "Pobedio je igrac 1",0
+	   69 6F 20 6A 65
+	   20 69 67 72 61
+	   63 20 31 00
+ 00000918 50 6F 62 65 64	    str5 BYTE "Pobedio je igrac 2",0
+	   69 6F 20 6A 65
+	   20 69 67 72 61
+	   63 20 32 00
+ 0000092B 4E 61 20 70 6F	    str6 BYTE "Na potezu je igrac",0
+	   74 65 7A 75 20
+	   6A 65 20 69 67
+	   72 61 63 00
+ 0000093E 44 6F 62 72 6F	    str7 BYTE "Dobrodosli u igru pocket tanks:",0dh,0ah,0
+	   64 6F 73 6C 69
+	   20 75 20 69 67
+	   72 75 20 70 6F
+	   63 6B 65 74 20
+	   74 61 6E 6B 73
+	   3A 0D 0A 00
+ 00000960 5A 61 20 69 67	    str8 BYTE "Za igru pritisnite taster I a za uoblicavanje mape taster P",0dh,0ah,
+	   72 75 20 70 72
+	   69 74 69 73 6E
+	   69 74 65 20 74
+	   61 73 74 65 72
+	   20 49 20 61 20
+	   7A 61 20 75 6F
+	   62 6C 69 63 61
+	   76 61 6E 6A 65
+	   20 6D 61 70 65
+	   20 74 61 73 74
+	   65 72 20 50 0D
+	   0A 61 20 7A 61
+	   20 69 7A 6C 61
+	   7A 61 6B 20 69
+	   7A 20 69 67 72
+	   65 20 74 61 73
+	   74 65 72 20 45
+	   53 43 0D 0A 00
+				              "a za izlazak iz igre taster ESC",0dh,0ah,0
+ 000009BF 50 72 61 76 69	    str9 BYTE "Pravila igre:",0dh,0ah,
+	   6C 61 20 69 67
+	   72 65 3A 0D 0A
+	   53 76 61 6B 69
+	   20 74 65 6E 6B
+	   20 69 6D 61 20
+	   70 6F 20 31 30
+	   20 7A 69 76 6F
+	   74 61 20 61 20
+	   67 75 62 69 20
+	   6F 6E 61 6A 20
+	   6B 6F 6A 69 20
+	   70 72 76 69 20
+	   6F 73 74 61 6E
+	   65 20 62 65 7A
+	   20 7A 69 76 6F
+	   74 61 2E 0D 0A
+	   54 65 6E 6B 20
+	   73 65 20 6D 6F
+	   7A 65 20 6B 72
+	   65 74 61 74 69
+	   20 6C 65 76 6F
+	   20 69 6C 69 20
+	   64 65 73 6E 6F
+	   20 70 6F 6D 6F
+	   63 75 20 73 74
+	   72 65 6C 69 63
+	   61 2E 0D 0A 4D
+	   61 6B 73 69 6D
+	   61 6C 6F 20 6A
+	   65 20 64 6F 7A
+	   76 6F 6C 6A 65
+	   6E 6F 20 74 72
+	   69 20 6B 72 65
+	   74 61 6E 6A 61
+	   20 70 6F 20 70
+	   6F 74 65 7A 75
+	   2E 0D 0A 54 65
+	   6E 6B 20 73 65
+	   20 6D 6F 7A 65
+	   20 70 65 74 69
+	   20 69 6C 69 20
+	   73 70 75 73 74
+	   61 74 69 20 70
+	   6F 20 6A 65 64
+	   61 6E 20 62 6C
+	   6F 6B 20 69 20
+	   70 72 65 6C 61
+	   7A 69 74 69 20
+	   72 75 70 65 20
+	   73 69 72 69 6E
+	   65 20 64 76 61
+	   2E 0D 0A 00
+				              "Svaki tenk ima po 10 zivota a gubi onaj koji prvi ostane bez zivota.",0dh,0ah,
+				              "Tenk se moze kretati levo ili desno pomocu strelica.",0dh,0ah,
+				              "Maksimalo je dozvoljeno tri kretanja po potezu.",0dh,0ah,
+				              "Tenk se moze peti ili spustati po jedan blok i prelaziti rupe sirine dva.",0dh,0ah,0
+ 00000AC7 55 67 61 6F 20	   str10 BYTE "Ugao topa se podesava od -80 do 80 stepeni sa korakom 10 stepeni pomocu",0dh,0ah,
+	   74 6F 70 61 20
+	   73 65 20 70 6F
+	   64 65 73 61 76
+	   61 20 6F 64 20
+	   2D 38 30 20 64
+	   6F 20 38 30 20
+	   73 74 65 70 65
+	   6E 69 20 73 61
+	   20 6B 6F 72 61
+	   6B 6F 6D 20 31
+	   30 20 73 74 65
+	   70 65 6E 69 20
+	   70 6F 6D 6F 63
+	   75 0D 0A 73 74
+	   72 65 6C 69 63
+	   61 2E 0D 0A 47
+	   72 61 6E 61 74
+	   61 20 73 65 20
+	   69 73 70 61 6C
+	   6A 75 6A 65 20
+	   6E 61 20 73 70
+	   61 63 65 2E 0D
+	   0A 41 6B 6F 20
+	   67 72 61 6E 61
+	   74 61 20 70 6F
+	   67 6F 64 69 20
+	   75 20 64 65 6F
+	   20 6D 61 70 65
+	   20 67 64 65 20
+	   6A 65 20 70 72
+	   65 70 72 65 6B
+	   61 20 70 72 65
+	   70 72 65 6B 61
+	   20 6E 65 73 74
+	   61 6A 65 2E 0D
+	   0A 55 20 69 67
+	   72 69 63 69 20
+	   70 6F 73 74 6F
+	   6A 69 20 67 72
+	   61 76 69 74 61
+	   63 69 6A 61 20
+	   74 61 6B 6F 20
+	   64 61 20 73 65
+	   20 73 65 67 6D
+	   65 6E 74 69 20
+	   6D 61 70 65 20
+	   6F 62 72 75 73
+	   61 76 61 6A 75
+	   20 61 20 6E 65
+	   20 6F 73 74 61
+	   6A 75 20 64 61
+	   20 76 69 73 65
+	   2E 0D 0A 00
+				              "strelica.",0dh,0ah,
+				              "Granata se ispaljuje na space.",0dh,0ah,
+				              "Ako granata pogodi u deo mape gde je prepreka prepreka nestaje.",0dh,0ah,
+				              "U igrici postoji gravitacija tako da se segmenti mape obrusavaju a ne ostaju da vise.",0dh,0ah,0
+ 00000BD4 54 61 6B 6F 64	   str11 BYTE "Takodje se i tenkovi obrusavaju ako nestane tlo pod njima.",0dh,0ah,
+	   6A 65 20 73 65
+	   20 69 20 74 65
+	   6E 6B 6F 76 69
+	   20 6F 62 72 75
+	   73 61 76 61 6A
+	   75 20 61 6B 6F
+	   20 6E 65 73 74
+	   61 6E 65 20 74
+	   6C 6F 20 70 6F
+	   64 20 6E 6A 69
+	   6D 61 2E 0D 0A
+	   47 72 61 6E 61
+	   74 61 20 6E 65
+	   73 74 61 6A 65
+	   20 61 6B 6F 20
+	   75 64 61 72 69
+	   20 62 6F 63 6E
+	   65 20 67 72 61
+	   6E 69 63 65 20
+	   70 72 6F 7A 6F
+	   72 61 20 6B 61
+	   6F 20 69 20 6E
+	   6A 65 67 6F 76
+	   6F 20 64 6E 6F
+	   2E 0D 0A 47 72
+	   61 6E 61 74 61
+	   20 6E 61 73 74
+	   61 76 6C 6A 61
+	   20 64 61 20 6C
+	   65 74 69 20 70
+	   6F 20 74 72 61
+	   6A 65 6B 74 6F
+	   72 69 6A 69 20
+	   61 6B 6F 20 70
+	   6F 67 6F 64 69
+	   20 76 72 68 20
+	   70 72 6F 7A 6F
+	   72 61 0D 0A 00
+				              "Granata nestaje ako udari bocne granice prozora kao i njegovo dno.",0dh,0ah,
+				              "Granata nastavlja da leti po trajektoriji ako pogodi vrh prozora",0dh,0ah,0
+ 00000C97 4E 61 20 2B 20	   str12 BYTE "Na + se aktivira pojacan let granate a na - se deaktivira",0dh,0ah,
+	   73 65 20 61 6B
+	   74 69 76 69 72
+	   61 20 70 6F 6A
+	   61 63 61 6E 20
+	   6C 65 74 20 67
+	   72 61 6E 61 74
+	   65 20 61 20 6E
+	   61 20 2D 20 73
+	   65 20 64 65 61
+	   6B 74 69 76 69
+	   72 61 0D 0A 50
+	   72 69 74 69 73
+	   6E 69 74 65 20
+	   62 69 6C 6F 20
+	   73 74 61 20 7A
+	   61 20 70 6F 63
+	   65 74 61 6B 20
+	   69 67 72 65 2E
+	   0D 0A 00
+				              "Pritisnite bilo sta za pocetak igre.",0dh,0ah,0
+ 00000CF9 50 72 61 76 6C	   str13 BYTE  "Pravljenje mape:",0dh,0ah,            
+	   6A 65 6E 6A 65
+	   20 6D 61 70 65
+	   3A 0D 0A 53 74
+	   72 65 6C 69 63
+	   61 6D 61 20 73
+	   65 20 6B 72 65
+	   63 65 20 70 6F
+	   20 6D 61 70 69
+	   0D 0A 4E 61 20
+	   73 70 61 63 65
+	   20 73 65 20 70
+	   6F 73 74 61 76
+	   6C 6A 61 6A 75
+	   20 62 6C 6F 6B
+	   6F 76 69 0D 0A
+	   00
+				               "Strelicama se krece po mapi",0dh,0ah,  
+				               "Na space se postavljaju blokovi",0dh,0ah, 0
+ 00000D4A 42 6C 6F 6B 6F	  str14 BYTE   "Blokovi se ne mogu postaviti u prva cetiri reda" ,0dh,0ah,  
+	   76 69 20 73 65
+	   20 6E 65 20 6D
+	   6F 67 75 20 70
+	   6F 73 74 61 76
+	   69 74 69 20 75
+	   20 70 72 76 61
+	   20 63 65 74 69
+	   72 69 20 72 65
+	   64 61 0D 0A 4E
+	   61 20 62 6C 6F
+	   6B 6F 76 65 20
+	   75 74 69 63 65
+	   20 67 72 61 76
+	   69 74 61 63 69
+	   6A 61 2C 20 74
+	   61 6B 6F 20 64
+	   61 20 6E 65 20
+	   6D 6F 67 75 20
+	   64 61 20 76 69
+	   73 65 0D 0A 42
+	   6C 6F 6B 6F 76
+	   69 20 73 65 20
+	   62 72 69 73 75
+	   20 70 72 69 74
+	   69 73 6B 6F 6D
+	   20 6E 61 20 74
+	   61 73 74 65 72
+	   20 44 0D 0A 50
+	   72 69 74 69 73
+	   6E 69 74 65 20
+	   74 61 73 74 65
+	   72 20 45 53 43
+	   20 6B 61 6B 6F
+	   20 62 69 73 74
+	   65 20 73 61 63
+	   75 76 61 6C 69
+	   20 6D 61 70 75
+	   20 69 20 76 72
+	   61 74 69 6C 69
+	   20 73 65 20 75
+	   20 67 6C 61 76
+	   6E 69 20 6D 65
+	   6E 69 0D 0A 50
+	   72 69 74 69 73
+	   6E 69 74 65 20
+	   62 69 6C 6F 20
+	   6B 6F 6A 69 20
+	   74 61 73 74 65
+	   72 20 64 61 20
+	   62 69 73 74 65
+	   20 7A 61 70 6F
+	   63 65 6C 69 20
+	   70 72 61 76 6C
+	   6A 65 6E 6A 65
+	   20 6D 61 70 65
+	   00
+				               "Na blokove utice gravitacija, tako da ne mogu da vise" ,0dh,0ah,  
+				               "Blokovi se brisu pritiskom na taster D" ,0dh,0ah,  
+				               "Pritisnite taster ESC kako biste sacuvali mapu i vratili se u glavni meni" ,0dh,0ah,
+				               "Pritisnite bilo koji taster da biste zapoceli pravljenje mape",0
+ 00000E63 6F 75 74 70 75	    filename     BYTE "output.txt",0
+	   74 2E 74 78 74
+	   00
+ 00000E6E 00000000		    fileHandle   HANDLE ?
+ 00000E72 000008C0		    stringLength DWORD 2240d
+ 00000E76 00000000		    bytesWritten DWORD ?
+
+
+ 00000000			.code
+
+ 00000000			snimanje proc c uses eax edx ecx
+
+ 00000000  50		   *	    push   eax
+ 00000001  52		   *	    push   edx
+ 00000002  51		   *	    push   ecx
+ 00000003  BA 00000E63 R	    mov	edx,OFFSET filename
+ 00000008  E8 00000000 E	    call	CreateOutputFile
+ 0000000D  A3 00000E6E R	    mov	fileHandle,eax
+
+
+
+
+ 00000012  A1 00000E6E R	     mov	eax,fileHandle
+ 00000017  BA 00000018 R		mov	edx,OFFSET niz
+ 0000001C  8B 0D 00000E72 R		mov	ecx,stringLength
+ 00000022  E8 00000000 E		call	WriteToFile
+ 00000027  A1 00000E6E R	     mov	eax,fileHandle
+ 0000002C  E8 00000000 E		call	CloseFile
+ 00000031  33 C0		     xor eax,eax
+				     ret
+ 00000033  59		   *	    pop    ecx
+ 00000034  5A		   *	    pop    edx
+ 00000035  58		   *	    pop    eax
+ 00000036  C3		   *	    ret    00000h
+ 00000037			snimanje endp
+ 00000037			ucitavanje proc
+
+ 00000037  BA 00000E63 R	     mov	edx,OFFSET filename
+ 0000003C  E8 00000000 E		call	OpenInputFile
+ 00000041  A3 00000E6E R		mov	fileHandle,eax
+
+ 00000046  BA 00000018 R	     mov	edx,OFFSET niz
+ 0000004B  8B 0D 00000E72 R		mov	ecx,stringLength
+ 00000051  E8 00000000 E		call	ReadFromFile
+ 00000056  A1 00000E6E R	     mov	eax,fileHandle
+ 0000005B  E8 00000000 E		call	CloseFile
+
+ 00000060			ucitavanje endp
+
+
+ 00000060			koordinator proc c uses eax
+
+
+ 00000060  50		   *	    push   eax
+ 00000061  66| A1		mov ax, pom
+	   00000016 R
+ 00000067  F6 25 00000001 R	mul X
+ 0000006D  66| 03 05		add ax  , Y
+	   00000002 R
+ 00000074  66| A3		mov zed, ax
+	   00000014 R
+				ret
+ 0000007A  58		   *	    pop    eax
+ 0000007B  C3		   *	    ret    00000h
+ 0000007C			koordinator endp
+
+
+
+
+ 0000007C			CRTANJE proc c uses eax esi, Xc:BYTE,Yc:BYTE, Yc1:WORD  
+ 0000007C  55		   *	    push   ebp
+ 0000007D  8B EC	   *	    mov    ebp, esp
+ 0000007F  50		   *	    push   eax
+ 00000080  56		   *	    push   esi
+ 00000081  33 C0		xor eax, eax
+ 00000083  88 45 08		mov Xc, al
+ 00000086  88 45 0C		mov Yc, al
+ 00000089  66| 89 45 10		mov Yc1, ax
+ 0000008D  E8 00000000 E	call Clrscr
+ 00000092  80 3D 000008DD R	cmp igra,00
+	   00
+ 00000099  0F 84 00000183	je produzi2
+ 0000009F  B2 1E		mov dl,1eh
+ 000000A1  B6 00		mov dh,00h
+ 000000A3  E8 00000000 E	call gotoxy
+ 000000A8  B8 000000F9		mov eax,lightblue + (white * 16)
+ 000000AD  E8 00000000 E	call SetTextColor
+ 000000B2  BA 0000092B R	mov edx, OFFSET str6
+ 000000B7  E8 00000000 E	call writestring
+ 000000BC  B2 00		 mov dl,00h
+ 000000BE  B6 00		     mov dh,00h
+ 000000C0  E8 00000000 E	     call gotoxy
+ 000000C5  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 000000CA  E8 00000000 E	 	call SetTextColor
+ 000000CF  BA 000008E1 R	     mov edx,OFFSET str1
+				   
+ 000000D4  E8 00000000 E	     call WriteString
+				    
+ 000000D9  A0 000008DE R	     mov al, ugao_znak1
+ 000000DE  3C 00		     cmp al, 0h
+ 000000E0  74 06		      je pisi_poz
+				    
+ 000000E2  66| B8 002D		     mov ax, 02Dh
+ 000000E6  EB 02		     jmp pisi_kon
+ 000000E8  B0 00		 pisi_poz:  mov al , 00h
+
+ 000000EA  E8 00000000 E	   pisi_kon: call WriteChar 
+ 000000EF  66| A1		     mov ax,ugao1
+	   0000000E R
+ 000000F5  B2 0A		     mov dl, 0Ah
+ 000000F7  F6 F2		     div dl
+ 000000F9  04 30		     add al, 030h
+ 000000FB  E8 00000000 E	     call WriteChar
+ 00000100  B0 30		     mov al, 030h
+ 00000102  E8 00000000 E	     call WriteChar ; završava se pisanje "UGAO TENKA"
+
+ 00000107  B2 00		     mov dl,00h
+ 00000109  B6 01		     mov dh,01h
+ 0000010B  E8 00000000 E	     call Gotoxy
+ 00000110  B8 000000F4		     mov eax,red + (white * 16)
+ 00000115  E8 00000000 E	 	call SetTextColor
+ 0000011A  BA 000008FA R	     mov edx,OFFSET str3
+ 0000011F  E8 00000000 E	     call WriteString
+
+ 00000124  33 DB		     xor ebx,ebx
+ 00000126  B2 00		     mov dl,00h
+ 00000128  B6 01		     mov dh,01h
+ 0000012A  E8 00000000 E	     call Gotoxy
+ 0000012F  B0 03		     mov al,03h
+ 00000131  8A 1D 000008D9 R	     mov bl,zivot1
+ 00000137  80 FB 00		opet:cmp bl,00
+ 0000013A  74 10		     je produzi
+ 0000013C  E8 00000000 E	     call WriteChar
+ 00000141  FE C2		     inc dl
+ 00000143  E8 00000000 E	     call Gotoxy
+ 00000148  FE CB		     dec bl
+ 0000014A  EB EB		     jmp opet
+
+ 0000014C  B2 42		produzi: mov dl,42h
+ 0000014E  B6 00		     mov dh,00h
+ 00000150  E8 00000000 E	     call gotoxy
+ 00000155  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 0000015A  E8 00000000 E	 	call SetTextColor
+ 0000015F  BA 000008ED R	     mov edx,OFFSET str2
+				   
+ 00000164  E8 00000000 E	     call WriteString
+				    
+ 00000169  A0 000008DF R	     mov al, ugao_znak2
+ 0000016E  3C 00		     cmp al, 0h
+ 00000170  74 06		      je pisi_poz1
+				    
+ 00000172  66| B8 002D		     mov ax, 02Dh
+ 00000176  EB 02		     jmp pisi_kon1
+ 00000178  B0 00		 pisi_poz1:  mov al , 00h
+
+ 0000017A  E8 00000000 E	   pisi_kon1: call WriteChar 
+ 0000017F  66| A1		     mov ax,ugao2
+	   00000010 R
+ 00000185  B2 0A		     mov dl, 0Ah
+ 00000187  F6 F2		     div dl
+ 00000189  04 30		     add al, 030h
+ 0000018B  E8 00000000 E	     call WriteChar
+ 00000190  B0 30		     mov al, 030h
+ 00000192  E8 00000000 E	     call WriteChar ; završava se pisanje "UGAO TENKA"
+
+ 00000197  B2 46		     mov dl,46h
+ 00000199  B6 01		     mov dh,01h
+ 0000019B  E8 00000000 E	     call Gotoxy
+ 000001A0  B8 000000F4		     mov eax,red + (white * 16)
+ 000001A5  E8 00000000 E	 	call SetTextColor
+ 000001AA  BA 000008FA R	     mov edx,OFFSET str3
+ 000001AF  E8 00000000 E	     call WriteString
+
+ 000001B4  33 DB		     xor ebx,ebx
+ 000001B6  B2 4F		     mov dl,4fh
+ 000001B8  B6 01		     mov dh,01h
+ 000001BA  E8 00000000 E	     call Gotoxy
+ 000001BF  B0 03		     mov al,03h
+ 000001C1  8A 1D 000008DA R	     mov bl,zivot2
+ 000001C7  80 FB 00		opet1:cmp bl,00h
+ 000001CA  74 10		     je produzi1
+ 000001CC  E8 00000000 E	     call WriteChar
+ 000001D1  FE CA		     dec dl
+ 000001D3  E8 00000000 E	     call Gotoxy
+ 000001D8  FE CB		     dec bl
+ 000001DA  EB EB		     jmp opet1
+
+ 000001DC  80 3D 000008DB R	produzi1:     cmp snaga1,00
+	   00
+ 000001E3  74 1A		              je dalje            
+ 000001E5  B2 0B		              mov dl,0bh
+ 000001E7  B6 01		              mov dh,01h
+ 000001E9  E8 00000000 E	              call gotoxy
+ 000001EE  B8 000000F9		              mov eax,lightblue + (white * 16)
+ 000001F3  E8 00000000 E	         	    call SetTextColor
+ 000001F8  B0 AF		              mov al,0afh
+ 000001FA  E8 00000000 E	              call writechar
+ 000001FF  80 3D 000008DC R	       dalje: cmp snaga2,00
+	   00
+ 00000206  74 1A		              je produzi2  
+ 00000208  B2 44		              mov dl,044h
+ 0000020A  B6 01		              mov dh,01h
+ 0000020C  E8 00000000 E	              call gotoxy
+ 00000211  B8 000000F9		              mov eax,lightblue + (white * 16)
+ 00000216  E8 00000000 E	         	    call SetTextColor
+ 0000021B  B0 AE		              mov al,0aeh
+ 0000021D  E8 00000000 E	              call writechar
+
+ 00000222			produzi2:.repeat 
+ 00000222		   *@C0001:
+
+
+
+
+
+				        .repeat 
+ 00000222		   *@C0002:
+ 00000222  8A 45 08		              mov al,Xc
+ 00000225  04 02		              add al,02h
+ 00000227  8A F0		              mov dh, al
+ 00000229  8A 55 0C		              mov dl, Yc
+ 0000022C  66| A1		              mov ax, pom
+	   00000016 R
+ 00000232  F6 65 08		              mul Xc
+ 00000235  66| 03 45 10		              add ax , Yc1
+ 00000239  66| A3		              mov zed, ax
+	   00000014 R
+ 0000023F  BE 00000018 R	              mov esi, OFFSET niz 
+ 00000244  8B C6		              mov eax, esi
+ 00000246  66| 03 05		              add ax, zed
+	   00000014 R
+ 0000024D  8B F0		              mov esi, eax
+ 0000024F  80 3D 000008DD R	              cmp igra,00h
+	   00
+ 00000256  0F 84 0000009D	              je crtprav
+ 0000025C  8A 06		              mov al,[esi]
+ 0000025E  3C 00		              cmp al,00h
+ 00000260  74 7C		              je nista
+ 00000262  3C 01		              cmp al, 01h
+ 00000264  74 30		              je znak0
+ 00000266  3C 02		              cmp al,02h
+ 00000268  74 44		              je znak1
+ 0000026A  3C 03		              cmp al,03h
+ 0000026C  74 58		              je znak2
+ 0000026E  66| FF 45 10		              znakp: inc Yc1
+ 00000272  FE 45 0C		                      inc   Yc
+
+				        .until Yc > 4fh
+ 00000275  80 7D 0C 4F	   *	    cmp    Yc, 04Fh
+ 00000279  76 A7	   *	    jbe    @C0002
+ 0000027B  33 C0		        xor eax, eax
+ 0000027D  88 45 0C		        mov Yc,al
+ 00000280  66| 89 45 10		        mov Yc1, ax
+ 00000284  FE 45 08		        inc Xc
+ 00000287  A0 00000000 R	        mov al, donja_granica
+				.until  Xc > al
+ 0000028C  38 45 08	   *	    cmp    Xc, al
+ 0000028F  76 91	   *	    jbe    @C0001
+ 00000291  E9 0000008C		jmp kraj
+ 00000296  B8 000000F2		 znak0:mov eax,green + (white * 16)
+ 0000029B  E8 00000000 E	 	 call SetTextColor 
+ 000002A0  B0 DB		      mov al, 0DBh 
+ 000002A2  E8 00000000 E	      call Gotoxy
+ 000002A7  E8 00000000 E	      call WriteChar
+ 000002AC  EB C0		      jmp  znakp
+ 000002AE  B8 000000F8		 znak1:mov eax,gray + (white * 16)
+ 000002B3  E8 00000000 E	 	 call SetTextColor 
+ 000002B8  B0 04		      mov al, 04h 
+ 000002BA  E8 00000000 E	      call Gotoxy
+ 000002BF  E8 00000000 E	      call WriteChar
+ 000002C4  EB A8		      jmp  znakp
+ 000002C6  B8 000000F8		 znak2:mov eax,gray + (white * 16)
+ 000002CB  E8 00000000 E	 	 call SetTextColor 
+ 000002D0  B0 1E		      mov al, 1eh 
+ 000002D2  E8 00000000 E	      call Gotoxy
+ 000002D7  E8 00000000 E	      call WriteChar
+ 000002DC  EB 90		      jmp  znakp
+ 000002DE  B8 000000F9		 nista:mov eax,LightBlue + (white * 16)
+ 000002E3  E8 00000000 E	 	 call SetTextColor 
+ 000002E8  B0 B0		      mov al, 0b0h 
+ 000002EA  E8 00000000 E	      call Gotoxy
+ 000002EF  E8 00000000 E	      call WriteChar
+ 000002F4  E9 FFFFFF75		      jmp  znakp
+
+ 000002F9  8A 06		      crtprav:mov al,[esi]
+ 000002FB  3C 01		              cmp al, 01h
+ 000002FD  74 05		              je znak0p
+ 000002FF  E9 FFFFFF6A		              jmp znakp
+
+ 00000304  B0 DB		znak0p:mov al, 0DBh 
+ 00000306  E8 00000000 E	       call Gotoxy
+ 0000030B  E8 00000000 E	       call WriteChar
+ 00000310  E9 FFFFFF59		       jmp  znakp
+
+ 00000315  33 C0		xor eax, eax
+ 00000317  88 45 08		mov Xc, al
+ 0000031A  88 45 0C		mov Yc, al
+ 0000031D  E8 00000000 E	call Gotoxy
+ 00000322			kraj:
+ 00000322  B2 00		    mov dl, 0h
+ 00000324  B6 00		    mov dh, 0h
+ 00000326  E8 00000000 E	    call Gotoxy
+				ret
+ 0000032B  5E		   *	    pop    esi
+ 0000032C  58		   *	    pop    eax
+ 0000032D  C9		   *	    leave  
+ 0000032E  C3		   *	    ret    00000h
+
+ 0000032F			CRTANJE endp
+
+ 0000032F			gravitacija_mapa proc  c uses eax esi, Xg:BYTE
+ 0000032F  55		   *	    push   ebp
+ 00000330  8B EC	   *	    mov    ebp, esp
+ 00000332  50		   *	    push   eax
+ 00000333  56		   *	    push   esi
+ 00000334  A0 00000001 R	mov al, X
+ 00000339  88 45 08		mov Xg, al
+ 0000033C  3A 05 00000000 R	cmp al,donja_granica
+ 00000342  74 33		je kraj
+ 00000344  66| A1		    poc:mov ax, pom
+	   00000016 R
+ 0000034A  F6 65 08		        mul Xg
+ 0000034D  66| 03 05		        add ax  , Y
+	   00000002 R
+ 00000354  66| A3		        mov zed, ax
+	   00000014 R
+
+
+
+ 0000035A  BE 00000018 R	    mov esi, OFFSET niz 
+ 0000035F  8B C6		        mov eax, esi
+ 00000361  66| 03 05		        add ax, pom 
+	   00000016 R
+ 00000368  66| 03 05		        add ax, zed
+	   00000014 R
+ 0000036F  8B F0		       mov esi, eax
+ 00000371  8A 06		       mov al, [esi]
+ 00000373  3C 00		       cmp al, 0h
+ 00000375  74 04		       je pad
+ 00000377			    kraj: ret
+ 00000377  5E		   *	    pop    esi
+ 00000378  58		   *	    pop    eax
+ 00000379  C9		   *	    leave  
+ 0000037A  C3		   *	    ret    00000h
+
+ 0000037B  B0 01		    pad: mov al, 01h
+ 0000037D  88 06		         mov[esi], al
+ 0000037F  8B C6		         mov eax, esi
+ 00000381  66| 2B 05		         sub ax, pom
+	   00000016 R
+ 00000388  8B F0		         mov esi, eax
+ 0000038A  B0 00		         mov al, 00h
+ 0000038C  88 06		         mov[esi], al
+ 0000038E  FE 45 08		         inc Xg
+ 00000391  33 C0		         xor    eax, eax
+ 00000393  A0 000008D8 R	         mov  al, kasnjenje
+ 00000398  E8 00000000 E	         call Delay
+ 0000039D  E8 FFFFFCDA		         call CRTANJE   
+ 000003A2  8A 45 08		         mov al, Xg
+ 000003A5  3A 05 00000000 R	         cmp al, donja_granica
+ 000003AB  74 CA		         je kraj
+ 000003AD  EB 95		         jmp poc
+				         
+
+
+
+
+
+ 000003AF			gravitacija_mapa endp
+
+
+ 000003AF			gravitacija_brisanje proc c uses eax esi, Xg2:BYTE,Yg2:WORD
+
+ 000003AF  55		   *	    push   ebp
+ 000003B0  8B EC	   *	    mov    ebp, esp
+ 000003B2  50		   *	    push   eax
+ 000003B3  56		   *	    push   esi
+ 000003B4  80 3D 000008DD R	cmp igra,00h
+	   00
+ 000003BB  0F 84 00000092	je crt
+ 000003C1  A0 0000000A R	mov al, xgr
+ 000003C6  88 45 08		mov Xg2,al
+ 000003C9  3C 00		cmp al,00h
+ 000003CB  0F 84 00000096	je kraj
+ 000003D1  66| A1		mov ax,ygr
+	   0000000B R
+ 000003D7  66| 89 45 0C		mov Yg2,ax
+ 000003DB  8A 35 0000000A R	mov dh,xgr
+ 000003E1  66| A1		                        mov ax,ygr
+	   0000000B R
+ 000003E7  8A D0		                        mov dl,al
+ 000003E9  80 C6 02		                        add dh,02h
+ 000003EC  E8 00000000 E	                        CALL Gotoxy
+ 000003F1			crtpov:
+ 000003F1  66| A1		   poc: mov ax, pom
+	   00000016 R
+ 000003F7  F6 65 08		        mul Xg2
+ 000003FA  66| 03 45 0C		        add ax  , Yg2
+ 000003FE  66| A3		        mov zed, ax
+	   00000014 R
+
+
+ 00000404  BE 00000018 R	        mov esi, OFFSET niz 
+ 00000409  8B C6		        mov eax, esi
+ 0000040B  66| 2B 05		        sub ax, pom 
+	   00000016 R
+ 00000412  66| 03 05		        add ax, zed
+	   00000014 R
+ 00000419  8B F0		       mov esi, eax
+ 0000041B  8A 06		       mov al, [esi]
+ 0000041D  3C 01		       cmp al, 01h
+ 0000041F  74 02		       je pad
+ 00000421  EB 44		       jmp kraj
+
+
+ 00000423  B0 00		        pad: mov al, 00h
+ 00000425  88 06		         mov[esi], al
+ 00000427  8B C6		         mov eax, esi
+ 00000429  66| 03 05		        add ax, pom
+	   00000016 R
+ 00000430  8B F0		         mov esi, eax
+ 00000432  B0 01		         mov al, 01h
+ 00000434  88 06		         mov[esi], al
+				         
+ 00000436  FE 4D 08		         dec Xg2
+				         
+ 00000439  33 C0		         xor    eax, eax
+ 0000043B  A0 000008D8 R	         mov  al, kasnjenje
+ 00000440  E8 00000000 E	         call Delay
+ 00000445  E8 FFFFFC32		         call CRTANJE   
+ 0000044A  8A 45 08		         mov al, Xg2
+ 0000044D  3C 00		         cmp al, 00h
+ 0000044F  74 16		         je kraj
+ 00000451  EB 9E		         jmp poc
+
+
+ 00000453  A0 00000001 R	         crt: mov al,X
+ 00000458  88 45 08		         mov Xg2,al
+ 0000045B  66| A1		         mov ax,Y
+	   00000002 R
+ 00000461  66| 89 45 0C		         mov Yg2,ax
+ 00000465  EB 8A		         jmp crtpov 
+ 00000467  E8 FFFFFC10		         kraj:call CRTANJE
+				         ret 
+ 0000046C  5E		   *	    pop    esi
+ 0000046D  58		   *	    pop    eax
+ 0000046E  C9		   *	    leave  
+ 0000046F  C3		   *	    ret    00000h
+ 00000470			gravitacija_brisanje endp
+
+ 00000470			brisitenk proc c uses eax esi, Xt:byte, Yt:word
+
+ 00000470  55		   *	    push   ebp
+ 00000471  8B EC	   *	    mov    ebp, esp
+ 00000473  50		   *	    push   eax
+ 00000474  56		   *	    push   esi
+ 00000475  80 3D 000008E0 R	cmp potez,1h
+	   01
+ 0000047C  74 14		je uzmiprvi
+ 0000047E  A0 00000007 R	MOV al, xt2
+ 00000483  88 45 08		mov xt, al
+ 00000486  66| A1		mov ax, yt2
+	   00000008 R
+ 0000048C  66| 89 45 0C		mov yt,ax
+ 00000490  EB 12		jmp obrada
+
+
+
+ 00000492  A0 00000004 R	uzmiprvi: MOV al, xt1
+ 00000497  88 45 08		          mov xt, al
+ 0000049A  66| A1		          mov ax, yt1
+	   00000005 R
+ 000004A0  66| 89 45 0C		          mov yt,ax
+				          
+ 000004A4  8A 75 08		obrada: mov dh, xt
+ 000004A7  80 C6 02		        add dh, 02h
+ 000004AA  66| 8B 45 0C		        mov ax, yt
+ 000004AE  8A D0		        mov dl, al
+ 000004B0  B8 000000F9		        mov eax,LightBlue + (white * 16)
+ 000004B5  E8 00000000 E	 	   call SetTextColor
+ 000004BA  B0 B0		        mov al,0b0h
+ 000004BC  E8 00000000 E	        call Gotoxy
+ 000004C1  E8 00000000 E	        call WriteChar
+ 000004C6  FE C2		        inc dl
+ 000004C8  E8 00000000 E	        call Gotoxy
+ 000004CD  E8 00000000 E	        call WriteChar
+ 000004D2  FE C2		        inc dl
+ 000004D4  E8 00000000 E	        call Gotoxy
+ 000004D9  E8 00000000 E	        call WriteChar
+ 000004DE  FE CA		        dec dl
+ 000004E0  FE CE		        dec dh
+ 000004E2  E8 00000000 E	        call Gotoxy
+ 000004E7  E8 00000000 E	        call WriteChar
+ 000004EC  33 C0		        xor eax,eax
+ 000004EE  A0 000008D8 R	        mov al, kasnjenje
+ 000004F3  E8 00000000 E	        call Delay
+
+
+				ret
+ 000004F8  5E		   *	    pop    esi
+ 000004F9  58		   *	    pop    eax
+ 000004FA  C9		   *	    leave  
+ 000004FB  C3		   *	    ret    00000h
+ 000004FC			brisitenk endp
+
+ 000004FC			pisitenk proc c uses eax esi, Xt:byte, Yt:word
+
+ 000004FC  55		   *	    push   ebp
+ 000004FD  8B EC	   *	    mov    ebp, esp
+ 000004FF  50		   *	    push   eax
+ 00000500  56		   *	    push   esi
+ 00000501  80 3D 000008E0 R	cmp potez,1h
+	   01
+ 00000508  74 14		je uzmiprvi
+ 0000050A  A0 00000007 R	MOV al, xt2
+ 0000050F  88 45 08		mov xt, al
+ 00000512  66| A1		mov ax, yt2
+	   00000008 R
+ 00000518  66| 89 45 0C		mov yt,ax
+ 0000051C  EB 12		jmp obrada
+
+
+
+ 0000051E  A0 00000004 R	uzmiprvi: MOV al, xt1
+ 00000523  88 45 08		          mov xt, al
+ 00000526  66| A1		          mov ax, yt1
+	   00000005 R
+ 0000052C  66| 89 45 0C		          mov yt,ax
+				          
+ 00000530  8A 75 08		obrada: mov dh, xt
+ 00000533  80 C6 02		        add dh, 02h
+ 00000536  66| 8B 45 0C		        mov ax, yt
+ 0000053A  8A D0		        mov dl, al
+ 0000053C  B8 000000F8		        mov eax,gray + (white * 16)
+ 00000541  E8 00000000 E	 	   call SetTextColor
+ 00000546  B0 04		        mov al,04h
+ 00000548  E8 00000000 E	        call Gotoxy
+ 0000054D  E8 00000000 E	        call WriteChar
+ 00000552  FE C2		        inc dl
+ 00000554  E8 00000000 E	        call Gotoxy
+ 00000559  E8 00000000 E	        call WriteChar
+ 0000055E  FE C2		        inc dl
+ 00000560  E8 00000000 E	        call Gotoxy
+ 00000565  E8 00000000 E	        call WriteChar
+ 0000056A  FE CA		        dec dl
+ 0000056C  FE CE		        dec dh
+ 0000056E  B0 1E		        mov al, 01eh
+ 00000570  E8 00000000 E	        call Gotoxy
+ 00000575  E8 00000000 E	        call WriteChar
+ 0000057A  33 C0		        xor eax,eax
+ 0000057C  A0 000008D8 R	        mov al, kasnjenje
+ 00000581  E8 00000000 E	        call Delay
+
+				ret
+ 00000586  5E		   *	    pop    esi
+ 00000587  58		   *	    pop    eax
+ 00000588  C9		   *	    leave  
+ 00000589  C3		   *	    ret    00000h
+ 0000058A			pisitenk endp
+
+ 0000058A			pravi proc c uses eax esi edx
+ 0000058A  50		   *	    push   eax
+ 0000058B  56		   *	    push   esi
+ 0000058C  52		   *	    push   edx
+ 0000058D  C6 05 000008DD R	     mov igra,00h
+	   00
+ 00000594  E8 00000000 E	     call clrscr
+ 00000599  B2 00		      mov dl,00h
+ 0000059B  B6 00		        mov dh,00h
+ 0000059D  E8 00000000 E	        call gotoxy
+ 000005A2  BA 00000CF9 R	        mov edx, OFFSET str13
+ 000005A7  E8 00000000 E	        call writestring
+ 000005AC  BA 00000D4A R	        mov edx, OFFSET str14
+ 000005B1  E8 00000000 E	        call writestring
+ 000005B6  E8 00000000 E	        call ReadChar
+
+
+ 000005BB			ponovi:
+ 000005BB  E8 FFFFFABC		     call CRTANJE
+ 000005C0  A0 00000001 R	     mov al,X
+ 000005C5  04 02		     add al,02h
+ 000005C7  8A F0		     mov dh,al
+ 000005C9  8A 15 00000013 R	     mov dl, Y1
+ 000005CF  E8 00000000 E	     call Gotoxy
+ 000005D4  E8 00000000 E		call ReadChar
+ 000005D9  80 FC 50		     cmp ah, 50h
+ 000005DC  74 2D		     je dole
+ 000005DE  80 FC 4D		     cmp ah, 4Dh
+ 000005E1  0F 84 00000091	     je desno
+ 000005E7  80 FC 4B		     cmp ah, 4Bh
+ 000005EA  74 5F		     je levo
+ 000005EC  80 FC 48		     cmp ah, 48h
+ 000005EF  74 39		     je gore
+ 000005F1  3C 1B		     cmp al, 1Bh
+ 000005F3  0F 84 000000FF	     je napusti
+ 000005F9  3C 20		     cmp al, 20h
+ 000005FB  0F 84 000000A4	     je teren
+ 00000601  3C 64		     cmp al, 64h 
+ 00000603  0F 84 000000CC	     je brisi
+ 00000609  EB B0		     jmp ponovi
+
+ 0000060B  FE 05 00000001 R	dole:inc    X
+ 00000611  A0 00000001 R	    mov al ,X
+ 00000616  FE C8		    dec al
+ 00000618  3A 05 00000000 R	    cmp al, donja_granica
+ 0000061E  74 02		     je smX
+ 00000620  EB 99		       jmp ponovi
+
+ 00000622  FE 0D 00000001 R	smX: dec X
+ 00000628  EB 91		    jmp ponovi
+
+ 0000062A  A0 00000001 R	gore: mov al, X
+ 0000062F  66| 48		     dec ax
+ 00000631  3C FF		     cmp al, 0ffh
+ 00000633  74 0A		     je poX
+ 00000635  A2 00000001 R	     mov X, al
+ 0000063A  E9 FFFFFF7C		     jmp ponovi
+
+ 0000063F  66| 40		poX: inc ax
+ 00000641  A2 00000001 R	    mov X, al
+ 00000646  E9 FFFFFF70		    jmp ponovi
+
+ 0000064B  66| FF 0D		levo: dec   Y
+	   00000002 R
+ 00000652  FE 0D 00000013 R	      dec   Y1
+ 00000658  A0 00000013 R	     mov    al  , Y1
+ 0000065D  3C FF		     cmp al, 0ffh
+ 0000065F  74 05		     je poY
+ 00000661  E9 FFFFFF55		     jmp ponovi
+
+ 00000666  66| FF 05		poY: inc   Y
+	   00000002 R
+ 0000066D  FE 05 00000013 R	     inc     Y1
+ 00000673  E9 FFFFFF43		     jmp ponovi
+
+ 00000678  66| FF 05		desno: inc Y
+	   00000002 R
+ 0000067F  FE 05 00000013 R	       inc  Y1
+ 00000685  A0 00000013 R	       mov al, Y1
+ 0000068A  3C 50		     cmp al, 50h
+ 0000068C  74 05		     je smY
+ 0000068E  E9 FFFFFF28		     jmp ponovi
+
+ 00000693  66| FF 0D		smY: dec Y
+	   00000002 R
+ 0000069A  FE 0D 00000013 R	    dec Y1
+ 000006A0  E9 FFFFFF16		    jmp ponovi
+
+ 000006A5  A0 00000001 R	teren:  mov al,X
+ 000006AA  3C 01		        cmp al,01h
+ 000006AC  0F 8E FFFFFF09	        jle ponovi
+ 000006B2  E8 FFFFF9A9		        call koordinator
+ 000006B7  BE 00000018 R	        mov esi, OFFSET niz 
+ 000006BC  8B C6		        mov eax, esi
+ 000006BE  66| 03 05		        add ax, zed
+	   00000014 R
+ 000006C5  8B F0		        mov esi, eax
+ 000006C7  B0 01		        mov al, 01h
+ 000006C9  88 06		        mov [esi], al
+ 000006CB  E8 FFFFFC5F		        call gravitacija_mapa    
+ 000006D0  E9 FFFFFEE6		    jmp ponovi
+
+
+ 000006D5  E8 FFFFF986		brisi:  call koordinator
+ 000006DA  BE 00000018 R	        mov esi, OFFSET niz 
+ 000006DF  8B C6		        mov eax, esi
+ 000006E1  66| 03 05		        add ax, zed
+	   00000014 R
+ 000006E8  8B F0		        mov esi, eax
+ 000006EA  B0 00		        mov al, 00h
+ 000006EC  88 06		        mov [esi], al
+ 000006EE  E8 FFFFFCBC		        call gravitacija_brisanje  
+ 000006F3  E9 FFFFFEC3		    jmp ponovi
+
+
+
+ 000006F8  33 C0		napusti: xor eax, eax
+ 000006FA  A2 00000001 R	         mov X,al
+ 000006FF  66| A3		         mov Y,ax
+	   00000002 R
+ 00000705  A2 00000013 R	         mov Y1,al
+ 0000070A  8A 35 00000001 R	         mov dh, X
+ 00000710  8A 15 00000013 R	         mov dl, Y1
+ 00000716  E8 00000000 E	         call Gotoxy
+ 0000071B  E8 FFFFF8E0		         call snimanje
+
+				ret
+ 00000720  5A		   *	    pop    edx
+ 00000721  5E		   *	    pop    esi
+ 00000722  58		   *	    pop    eax
+ 00000723  C3		   *	    ret    00000h
+
+
+ 00000724			pravi endp
+ 00000724			pozicija1 proc c uses eax esi, Xt:BYTE,Yt:WORD
+				   
+ 00000724  55		   *	    push   ebp
+ 00000725  8B EC	   *	    mov    ebp, esp
+ 00000727  50		   *	    push   eax
+ 00000728  56		   *	    push   esi
+ 00000729  66| A1		        mov ax, Yt1
+	   00000005 R
+ 0000072F  66| 89 45 0C		        mov Yt,ax
+ 00000733  A0 00000004 R	        mov al, Xt1
+ 00000738  88 45 08		        mov Xt, al
+ 0000073B  3A 05 00000000 R	        cmp al,donja_granica
+ 00000741  0F 84 00000138	        je kraj
+ 00000747  66| A1		         mov ax, pom
+	   00000016 R
+ 0000074D  F6 65 08		            mul Xt
+ 00000750  66| 03 45 0C		            add ax  , Yt
+ 00000754  66| A3		            mov zed, ax
+	   00000014 R
+ 0000075A  BE 00000018 R	            mov esi, OFFSET niz 
+ 0000075F  8B C6		            mov eax, esi
+ 00000761  66| 03 05		            add ax,zed
+	   00000014 R
+ 00000768  8B F0		            mov esi,eax
+ 0000076A  B0 02		            mov al,02h
+ 0000076C  88 06		            mov [esi],al
+ 0000076E  46			            inc esi
+ 0000076F  88 06		            mov [esi],al
+ 00000771  46			            inc esi
+ 00000772  88 06		            mov [esi],al
+ 00000774  4E			            dec esi
+ 00000775  8B C6		            mov eax,esi
+ 00000777  66| 2B 05		            sub ax,pom
+	   00000016 R
+ 0000077E  8B F0		            mov esi,eax
+ 00000780  B0 03		            mov al,03h
+ 00000782  88 06		            mov [esi],al
+				        
+ 00000784  66| A1		       poc: mov ax, pom
+	   00000016 R
+ 0000078A  F6 65 08		            mul Xt
+ 0000078D  66| 03 45 0C		            add ax  , Yt
+ 00000791  66| A3		            mov zed, ax
+	   00000014 R
+
+ 00000797  BE 00000018 R	            mov esi, OFFSET niz 
+ 0000079C  8B C6		            mov eax, esi
+ 0000079E  66| 03 05		            add ax, pom 
+	   00000016 R
+ 000007A5  66| 03 05		            add ax, zed
+	   00000014 R
+ 000007AC  8B F0		            mov esi, eax
+ 000007AE  8A 06		            mov al, [esi]
+ 000007B0  3C 00		            cmp al, 0h
+ 000007B2  74 05		            je plus
+ 000007B4  E9 000000C6		            jmp kraj
+ 000007B9  66| FF 45 0C		       plus: inc Yt
+ 000007BD  66| 8B 45 0C		            mov ax,Yt
+ 000007C1  66| 2B 05		            sub ax,Yt1
+	   00000005 R
+ 000007C8  3C 03		            cmp al,03h
+ 000007CA  74 02		            je pomeraj
+
+ 000007CC  EB B6		            jmp poc
+
+ 000007CE			       pomeraj:
+ 000007CE  66| A1		           mov ax,Yt1
+	   00000005 R
+ 000007D4  66| 89 45 0C		           mov Yt,ax
+ 000007D8  66| A1		             mov ax, pom
+	   00000016 R
+ 000007DE  F6 65 08		            mul Xt
+ 000007E1  66| 03 45 0C		            add ax  , Yt
+ 000007E5  66| A3		            mov zed, ax
+	   00000014 R
+ 000007EB  BE 00000018 R	            mov esi, OFFSET niz 
+ 000007F0  8B C6		            mov eax, esi
+ 000007F2  66| 03 05		            add ax,zed
+	   00000014 R
+ 000007F9  8B F0		            mov esi,eax
+ 000007FB  B0 00		            mov al,00h
+ 000007FD  88 06		            mov [esi],al
+ 000007FF  46			            inc esi
+ 00000800  88 06		            mov [esi],al
+ 00000802  46			            inc esi
+ 00000803  88 06		            mov [esi],al
+ 00000805  4E			            dec esi
+ 00000806  8B C6		            mov eax,esi
+ 00000808  66| 2B 05		            sub ax,pom
+	   00000016 R
+ 0000080F  8B F0		            mov esi,eax
+ 00000811  B0 00		            mov al,00h
+ 00000813  88 06		            mov [esi],al
+ 00000815  E8 FFFFFC56		            call brisitenk
+ 0000081A  FE 45 08		            inc Xt
+ 0000081D  FE 05 00000004 R	            inc xt1
+ 00000823  66| A1		             mov ax,Yt1
+	   00000005 R
+ 00000829  66| 89 45 0C		           mov Yt,ax
+ 0000082D  66| A1		             mov ax, pom
+	   00000016 R
+ 00000833  F6 65 08		            mul Xt
+ 00000836  66| 03 45 0C		            add ax  , Yt
+ 0000083A  66| A3		            mov zed, ax
+	   00000014 R
+ 00000840  BE 00000018 R	            mov esi, OFFSET niz 
+ 00000845  8B C6		            mov eax, esi
+ 00000847  66| 03 05		            add ax,zed
+	   00000014 R
+ 0000084E  8B F0		            mov esi,eax
+ 00000850  B0 02		            mov al,02h
+ 00000852  88 06		            mov [esi],al
+ 00000854  46			            inc esi
+ 00000855  88 06		            mov [esi],al
+ 00000857  46			            inc esi
+ 00000858  88 06		            mov [esi],al
+ 0000085A  4E			            dec esi
+ 0000085B  8B C6		            mov eax,esi
+ 0000085D  66| 2B 05		            sub ax,pom
+	   00000016 R
+ 00000864  8B F0		            mov esi,eax
+ 00000866  B0 03		            mov al,03h
+ 00000868  88 06		            mov [esi],al
+ 0000086A  E8 FFFFFC8D		           call pisitenk
+ 0000086F  8A 45 08		           mov al,Xt
+ 00000872  3A 05 00000000 R	           cmp al,donja_granica
+ 00000878  74 05		           je kraj
+ 0000087A  E9 FFFFFF05		           jmp poc
+ 0000087F  E8 FFFFF7F8		kraj:call CRTANJE
+				ret
+ 00000884  5E		   *	    pop    esi
+ 00000885  58		   *	    pop    eax
+ 00000886  C9		   *	    leave  
+ 00000887  C3		   *	    ret    00000h
+
+ 00000888			pozicija1 endp
+
+ 00000888			pozicija2 proc c uses eax esi, Xt:BYTE,Yt:WORD
+				         
+ 00000888  55		   *	    push   ebp
+ 00000889  8B EC	   *	    mov    ebp, esp
+ 0000088B  50		   *	    push   eax
+ 0000088C  56		   *	    push   esi
+ 0000088D  C6 05 000008E0 R	        mov potez,02h
+	   02
+ 00000894  66| A1		        mov ax, Yt2
+	   00000008 R
+ 0000089A  66| 89 45 0C		        mov Yt,ax
+ 0000089E  A0 00000007 R	        mov al, Xt2
+ 000008A3  88 45 08		        mov Xt, al
+ 000008A6  3A 05 00000000 R	        cmp al,donja_granica
+ 000008AC  0F 84 00000138	        je kraj
+ 000008B2  66| A1		            mov ax, pom
+	   00000016 R
+ 000008B8  F6 65 08		            mul Xt
+ 000008BB  66| 03 45 0C		            add ax  , Yt
+ 000008BF  66| A3		            mov zed, ax
+	   00000014 R
+ 000008C5  BE 00000018 R	            mov esi, OFFSET niz 
+ 000008CA  8B C6		            mov eax, esi
+ 000008CC  66| 03 05		            add ax,zed
+	   00000014 R
+ 000008D3  8B F0		            mov esi,eax
+ 000008D5  B0 02		            mov al,02h
+ 000008D7  88 06		            mov [esi],al
+ 000008D9  46			            inc esi
+ 000008DA  88 06		            mov [esi],al
+ 000008DC  46			            inc esi
+ 000008DD  88 06		            mov [esi],al
+ 000008DF  4E			            dec esi
+ 000008E0  8B C6		            mov eax,esi
+ 000008E2  66| 2B 05		            sub ax,pom
+	   00000016 R
+ 000008E9  8B F0		            mov esi,eax
+ 000008EB  B0 03		            mov al,03h
+ 000008ED  88 06		            mov [esi],al
+				        
+ 000008EF  66| A1		       poc: mov ax, pom
+	   00000016 R
+ 000008F5  F6 65 08		            mul Xt
+ 000008F8  66| 03 45 0C		            add ax  , Yt
+ 000008FC  66| A3		            mov zed, ax
+	   00000014 R
+
+ 00000902  BE 00000018 R	            mov esi, OFFSET niz 
+ 00000907  8B C6		            mov eax, esi
+ 00000909  66| 03 05		            add ax, pom 
+	   00000016 R
+ 00000910  66| 03 05		            add ax, zed
+	   00000014 R
+ 00000917  8B F0		            mov esi, eax
+ 00000919  8A 06		            mov al, [esi]
+ 0000091B  3C 00		            cmp al, 0h
+ 0000091D  74 05		            je plus
+ 0000091F  E9 000000C6		            jmp kraj
+ 00000924  66| FF 45 0C		       plus: inc Yt
+ 00000928  66| 8B 45 0C		            mov ax,Yt
+ 0000092C  66| 2B 05		            sub ax,Yt2
+	   00000008 R
+ 00000933  3C 03		            cmp al,03h
+ 00000935  74 02		            je pomeraj
+
+ 00000937  EB B6		            jmp poc
+
+ 00000939			       pomeraj:
+ 00000939  66| A1		           mov ax,Yt2
+	   00000008 R
+ 0000093F  66| 89 45 0C		           mov Yt,ax
+ 00000943  66| A1		             mov ax, pom
+	   00000016 R
+ 00000949  F6 65 08		            mul Xt
+ 0000094C  66| 03 45 0C		            add ax  , Yt
+ 00000950  66| A3		            mov zed, ax
+	   00000014 R
+ 00000956  BE 00000018 R	            mov esi, OFFSET niz 
+ 0000095B  8B C6		            mov eax, esi
+ 0000095D  66| 03 05		            add ax,zed
+	   00000014 R
+ 00000964  8B F0		            mov esi,eax
+ 00000966  B0 00		            mov al,00h
+ 00000968  88 06		            mov [esi],al
+ 0000096A  46			            inc esi
+ 0000096B  88 06		            mov [esi],al
+ 0000096D  46			            inc esi
+ 0000096E  88 06		            mov [esi],al
+ 00000970  4E			            dec esi
+ 00000971  8B C6		            mov eax,esi
+ 00000973  66| 2B 05		            sub ax,pom
+	   00000016 R
+ 0000097A  8B F0		            mov esi,eax
+ 0000097C  B0 00		            mov al,00h
+ 0000097E  88 06		            mov [esi],al
+ 00000980  E8 FFFFFAEB		            call brisitenk
+ 00000985  FE 45 08		            inc Xt
+ 00000988  FE 05 00000007 R	            inc xt2
+ 0000098E  66| A1		            mov ax,Yt2
+	   00000008 R
+ 00000994  66| 89 45 0C		            mov Yt,ax
+ 00000998  66| A1		            mov ax, pom
+	   00000016 R
+ 0000099E  F6 65 08		            mul Xt
+ 000009A1  66| 03 45 0C		            add ax  , Yt
+ 000009A5  66| A3		            mov zed, ax
+	   00000014 R
+ 000009AB  BE 00000018 R	            mov esi, OFFSET niz 
+ 000009B0  8B C6		            mov eax, esi
+ 000009B2  66| 03 05		            add ax,zed
+	   00000014 R
+ 000009B9  8B F0		            mov esi,eax
+ 000009BB  B0 02		            mov al,02h
+ 000009BD  88 06		            mov [esi],al
+ 000009BF  46			            inc esi
+ 000009C0  88 06		            mov [esi],al
+ 000009C2  46			            inc esi
+ 000009C3  88 06		            mov [esi],al
+ 000009C5  4E			            dec esi
+ 000009C6  8B C6		            mov eax,esi
+ 000009C8  66| 2B 05		            sub ax,pom
+	   00000016 R
+ 000009CF  8B F0		            mov esi,eax
+ 000009D1  B0 03		            mov al,03h
+ 000009D3  88 06		            mov [esi],al
+ 000009D5  E8 FFFFFB22		           call pisitenk
+ 000009DA  8A 45 08		           mov al,Xt
+ 000009DD  3A 05 00000000 R	           cmp al,donja_granica
+ 000009E3  74 05		           je kraj
+ 000009E5  E9 FFFFFF05		           jmp poc
+ 000009EA  E8 FFFFF68D		kraj:CALL CRTANJE
+				ret
+ 000009EF  5E		   *	    pop    esi
+ 000009F0  58		   *	    pop    eax
+ 000009F1  C9		   *	    leave  
+ 000009F2  C3		   *	    ret    00000h
+
+ 000009F3			pozicija2 endp
+
+ 000009F3			T1desno proc c uses eax esi, Xt:BYTE,Yt:WORD
+
+ 000009F3  55		   *	    push   ebp
+ 000009F4  8B EC	   *	    mov    ebp, esp
+ 000009F6  50		   *	    push   eax
+ 000009F7  56		   *	    push   esi
+ 000009F8  A0 00000004 R	    mov al,xt1
+ 000009FD  88 45 08		    mov Xt,al
+ 00000A00  66| A1		    mov ax,yt1
+	   00000005 R
+ 00000A06  66| 89 45 0C		    mov Yt,ax
+ 00000A0A  66| FF 45 0C		    inc Yt
+ 00000A0E  66| FF 45 0C		    inc Yt
+ 00000A12  66| A1		            mov ax, pom
+	   00000016 R
+ 00000A18  F6 65 08		            mul Xt
+ 00000A1B  66| 03 45 0C		            add ax  , Yt
+ 00000A1F  66| A3		            mov zed, ax
+	   00000014 R
+
+ 00000A25  BE 00000018 R	            mov esi, OFFSET niz 
+ 00000A2A  8B C6		            mov eax, esi
+ 00000A2C  66| 83 C0 01		            add ax, 01h
+ 00000A30  66| 03 05		            add ax, zed
+	   00000014 R
+ 00000A37  8B F0		            mov esi, eax
+ 00000A39  8A 06		            mov al, [esi]
+ 00000A3B  3C 02		            cmp al, 02h
+ 00000A3D  0F 84 0000029E	            je kraj
+ 00000A43  3C 01		            cmp al, 01h
+ 00000A45  0F 84 00000097	            je gore
+ 00000A4B  8A 45 08		            mov al,Xt
+ 00000A4E  3A 05 00000000 R	            cmp al, donja_granica
+ 00000A54  0F 84 00000145	            je desno
+ 00000A5A  8B C6		            mov eax,esi
+ 00000A5C  66| 03 05		            add ax,pom
+	   00000016 R
+ 00000A63  8B F0		            mov esi,eax
+ 00000A65  4E			            dec esi
+ 00000A66  4E			            dec esi
+ 00000A67  8A 06		            mov al, [esi]
+ 00000A69  3C 02		            cmp al,02h
+ 00000A6B  0F 84 00000270	            je kraj
+ 00000A71  3C 01		            cmp al,01h
+ 00000A73  0F 84 00000126	            je desno
+ 00000A79  46			            inc esi
+ 00000A7A  8A 06		            mov al, [esi]
+ 00000A7C  3C 02		            cmp al,02h
+ 00000A7E  0F 84 0000025D	            je kraj
+ 00000A84  3C 01		            cmp al,01h
+ 00000A86  0F 84 00000113	            je desno
+ 00000A8C  46			            inc esi
+ 00000A8D  8A 06		            mov al, [esi]
+ 00000A8F  3C 02		            cmp al,02h
+ 00000A91  0F 84 0000024A	            je kraj
+ 00000A97  3C 01		            cmp al,01h
+ 00000A99  0F 84 00000100	            je desno
+ 00000A9F  8A 45 08		            mov al,Xt
+ 00000AA2  FE C0		            inc al
+ 00000AA4  3A 05 00000000 R	            cmp al, donja_granica
+ 00000AAA  0F 84 0000018E	            je dole
+ 00000AB0  8B C6		            mov eax,esi
+ 00000AB2  66| 03 05		            add ax,pom
+	   00000016 R
+ 00000AB9  8B F0		            mov esi,eax
+ 00000ABB  4E			            dec esi
+ 00000ABC  4E			            dec esi
+ 00000ABD  8A 06		            mov al, [esi]
+ 00000ABF  3C 01		            cmp al,01h
+ 00000AC1  0F 84 00000177	            je dole
+ 00000AC7  46			            inc esi
+ 00000AC8  8A 06		            mov al, [esi]
+ 00000ACA  3C 01		            cmp al,01h
+ 00000ACC  0F 84 0000016C	            je dole
+ 00000AD2  46			            inc esi
+ 00000AD3  8A 06		            mov al, [esi]
+ 00000AD5  3C 01		            cmp al,01h
+ 00000AD7  0F 84 00000161	            je dole
+ 00000ADD  E9 000001FF		            jmp kraj
+
+ 00000AE2  8B C6		       gore: mov eax,esi
+ 00000AE4  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000AEB  8B F0		             mov esi,eax
+ 00000AED  8A 06		             mov al,[esi]
+ 00000AEF  3C 01		             cmp al,01h
+ 00000AF1  0F 84 000001EA	             je kraj
+ 00000AF7  41			             inc ecx
+ 00000AF8  8A C1		             mov al,cl
+ 00000AFA  3C 03		             cmp al,03h
+ 00000AFC  0F 87 000001DF	             ja kraj
+ 00000B02  66| A1		             mov ax, pom
+	   00000016 R
+ 00000B08  F6 65 08		             mul Xt
+ 00000B0B  66| 03 45 0C		             add ax  , Yt
+ 00000B0F  66| A3		             mov zed, ax
+	   00000014 R
+ 00000B15  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000B1A  8B C6		             mov eax, esi
+ 00000B1C  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000B23  8B F0		             mov esi,eax
+ 00000B25  B0 00		             mov al,00h
+ 00000B27  88 06		             mov [esi],al
+ 00000B29  4E			             dec esi
+ 00000B2A  88 06		             mov [esi],al
+ 00000B2C  4E			             dec esi
+ 00000B2D  88 06		             mov [esi],al
+ 00000B2F  46			             inc esi
+ 00000B30  8B C6		             mov eax,esi
+ 00000B32  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000B39  8B F0		             mov esi,eax
+ 00000B3B  B0 00		             mov al,00h
+ 00000B3D  88 06		             mov [esi],al
+ 00000B3F  FE 4D 08		             dec Xt
+ 00000B42  66| FF 45 0C		             inc Yt
+ 00000B46  66| A1		             mov ax, pom
+	   00000016 R
+ 00000B4C  F6 65 08		             mul Xt
+ 00000B4F  66| 03 45 0C		             add ax  , Yt
+ 00000B53  66| A3		             mov zed, ax
+	   00000014 R
+ 00000B59  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000B5E  8B C6		             mov eax, esi
+ 00000B60  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000B67  8B F0		             mov esi,eax
+ 00000B69  B0 02		             mov al,02h
+ 00000B6B  88 06		             mov [esi],al
+ 00000B6D  4E			             dec esi
+ 00000B6E  88 06		             mov [esi],al
+ 00000B70  4E			             dec esi
+ 00000B71  88 06		             mov [esi],al
+ 00000B73  46			             inc esi
+ 00000B74  8B C6		             mov eax,esi
+ 00000B76  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000B7D  8B F0		             mov esi,eax
+ 00000B7F  B0 03		             mov al,03h
+ 00000B81  88 06		             mov [esi],al
+ 00000B83  E8 FFFFF8E8		             call brisitenk
+ 00000B88  FE 0D 00000004 R	             dec xt1
+ 00000B8E  66| FF 05		             inc yt1
+	   00000005 R
+ 00000B95  E8 FFFFF962		             call pisitenk
+ 00000B9A  E9 00000142		             jmp kraj
+
+ 00000B9F  41			       desno:inc ecx
+ 00000BA0  8A C1		             mov al,cl
+ 00000BA2  3C 03		             cmp al,03h
+ 00000BA4  0F 87 00000137	             ja kraj
+ 00000BAA  66| A1		             mov ax, pom
+	   00000016 R
+ 00000BB0  F6 65 08		             mul Xt
+ 00000BB3  66| 03 45 0C		             add ax  , Yt
+ 00000BB7  66| A3		             mov zed, ax
+	   00000014 R
+ 00000BBD  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000BC2  8B C6		             mov eax, esi
+ 00000BC4  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000BCB  8B F0		             mov esi,eax
+ 00000BCD  B0 00		             mov al,00h
+ 00000BCF  88 06		             mov [esi],al
+ 00000BD1  4E			             dec esi
+ 00000BD2  88 06		             mov [esi],al
+ 00000BD4  4E			             dec esi
+ 00000BD5  88 06		             mov [esi],al
+ 00000BD7  46			             inc esi
+ 00000BD8  8B C6		             mov eax,esi
+ 00000BDA  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000BE1  8B F0		             mov esi,eax
+ 00000BE3  B0 00		             mov al,00h
+ 00000BE5  88 06		             mov [esi],al
+ 00000BE7  66| FF 45 0C		             inc Yt
+ 00000BEB  66| A1		             mov ax, pom
+	   00000016 R
+ 00000BF1  F6 65 08		             mul Xt
+ 00000BF4  66| 03 45 0C		             add ax  , Yt
+ 00000BF8  66| A3		             mov zed, ax
+	   00000014 R
+ 00000BFE  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000C03  8B C6		             mov eax, esi
+ 00000C05  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000C0C  8B F0		             mov esi,eax
+ 00000C0E  B0 02		             mov al,02h
+ 00000C10  88 06		             mov [esi],al
+ 00000C12  4E			             dec esi
+ 00000C13  88 06		             mov [esi],al
+ 00000C15  4E			             dec esi
+ 00000C16  88 06		             mov [esi],al
+ 00000C18  46			             inc esi
+ 00000C19  8B C6		             mov eax,esi
+ 00000C1B  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000C22  8B F0		             mov esi,eax
+ 00000C24  B0 03		             mov al,03h
+ 00000C26  88 06		             mov [esi],al
+ 00000C28  E8 FFFFF843		             call brisitenk
+ 00000C2D  66| FF 05		             inc yt1
+	   00000005 R
+ 00000C34  E8 FFFFF8C3		             call pisitenk
+ 00000C39  E9 000000A3		             jmp kraj
+				           
+ 00000C3E  41			        dole:inc ecx
+ 00000C3F  8A C1		             mov al,cl
+ 00000C41  3C 03		             cmp al,03h
+ 00000C43  0F 87 00000098	             ja kraj
+ 00000C49  66| A1		             mov ax, pom
+	   00000016 R
+ 00000C4F  F6 65 08		             mul Xt
+ 00000C52  66| 03 45 0C		             add ax  , Yt
+ 00000C56  66| A3		             mov zed, ax
+	   00000014 R
+ 00000C5C  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000C61  8B C6		             mov eax, esi
+ 00000C63  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000C6A  8B F0		             mov esi,eax
+ 00000C6C  B0 00		             mov al,00h
+ 00000C6E  88 06		             mov [esi],al
+ 00000C70  4E			             dec esi
+ 00000C71  88 06		             mov [esi],al
+ 00000C73  4E			             dec esi
+ 00000C74  88 06		             mov [esi],al
+ 00000C76  46			             inc esi
+ 00000C77  8B C6		             mov eax,esi
+ 00000C79  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000C80  8B F0		             mov esi,eax
+ 00000C82  B0 00		             mov al,00h
+ 00000C84  88 06		             mov [esi],al
+ 00000C86  FE 45 08		             inc Xt
+ 00000C89  66| FF 45 0C		             inc Yt
+ 00000C8D  66| A1		             mov ax, pom
+	   00000016 R
+ 00000C93  F6 65 08		             mul Xt
+ 00000C96  66| 03 45 0C		             add ax  , Yt
+ 00000C9A  66| A3		             mov zed, ax
+	   00000014 R
+ 00000CA0  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000CA5  8B C6		             mov eax, esi
+ 00000CA7  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000CAE  8B F0		             mov esi,eax
+ 00000CB0  B0 02		             mov al,02h
+ 00000CB2  88 06		             mov [esi],al
+ 00000CB4  4E			             dec esi
+ 00000CB5  88 06		             mov [esi],al
+ 00000CB7  4E			             dec esi
+ 00000CB8  88 06		             mov [esi],al
+ 00000CBA  46			             inc esi
+ 00000CBB  8B C6		             mov eax,esi
+ 00000CBD  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000CC4  8B F0		             mov esi,eax
+ 00000CC6  B0 03		             mov al,03h
+ 00000CC8  88 06		             mov [esi],al
+ 00000CCA  E8 FFFFF7A1		             call brisitenk
+ 00000CCF  FE 05 00000004 R	             inc xt1
+ 00000CD5  66| FF 05		             inc yt1
+	   00000005 R
+ 00000CDC  E8 FFFFF81B		             call pisitenk
+
+
+ 00000CE1			kraj: ret
+ 00000CE1  5E		   *	    pop    esi
+ 00000CE2  58		   *	    pop    eax
+ 00000CE3  C9		   *	    leave  
+ 00000CE4  C3		   *	    ret    00000h
+
+
+ 00000CE5			T1desno endp
+
+ 00000CE5			T1levo proc c uses eax esi, Xt:BYTE,Yt:WORD
+
+ 00000CE5  55		   *	    push   ebp
+ 00000CE6  8B EC	   *	    mov    ebp, esp
+ 00000CE8  50		   *	    push   eax
+ 00000CE9  56		   *	    push   esi
+ 00000CEA  A0 00000004 R	    mov al,xt1
+ 00000CEF  88 45 08		    mov Xt,al
+ 00000CF2  66| A1		    mov ax,yt1
+	   00000005 R
+ 00000CF8  66| 89 45 0C		    mov Yt,ax
+ 00000CFC  66| A1		            mov ax, pom
+	   00000016 R
+ 00000D02  F6 65 08		            mul Xt
+ 00000D05  66| 03 45 0C		            add ax  , Yt
+ 00000D09  66| A3		            mov zed, ax
+	   00000014 R
+
+ 00000D0F  BE 00000018 R	            mov esi, OFFSET niz 
+ 00000D14  8B C6		            mov eax, esi
+ 00000D16  66| 83 E8 01		            sub ax, 01h
+ 00000D1A  66| 03 05		            add ax, zed
+	   00000014 R
+ 00000D21  8B F0		            mov esi, eax
+ 00000D23  8A 06		            mov al, [esi]
+ 00000D25  3C 02		            cmp al, 02h
+ 00000D27  0F 84 0000029E	            je kraj
+ 00000D2D  3C 01		            cmp al,01h
+ 00000D2F  0F 84 00000097	            je gore
+ 00000D35  8A 45 08		            mov al,Xt
+ 00000D38  3A 05 00000000 R	            cmp al, donja_granica
+ 00000D3E  0F 84 00000145	            je levo
+ 00000D44  8B C6		            mov eax,esi
+ 00000D46  66| 03 05		            add ax,pom
+	   00000016 R
+ 00000D4D  8B F0		            mov esi,eax
+ 00000D4F  46			            inc esi
+ 00000D50  46			            inc esi
+ 00000D51  8A 06		            mov al, [esi]
+ 00000D53  3C 02		            cmp al,02h
+ 00000D55  0F 84 00000270	            je kraj
+ 00000D5B  3C 01		            cmp al,01h
+ 00000D5D  0F 84 00000126	            je levo
+ 00000D63  4E			            dec esi
+ 00000D64  8A 06		            mov al, [esi]
+ 00000D66  3C 02		            cmp al,02h
+ 00000D68  0F 84 0000025D	            je kraj
+ 00000D6E  3C 01		            cmp al,01h
+ 00000D70  0F 84 00000113	            je levo
+ 00000D76  4E			            dec esi
+ 00000D77  8A 06		            mov al, [esi]
+ 00000D79  3C 02		            cmp al,02h
+ 00000D7B  0F 84 0000024A	            je kraj
+ 00000D81  3C 01		            cmp al,01h
+ 00000D83  0F 84 00000100	            je levo
+ 00000D89  8A 45 08		            mov al,Xt
+ 00000D8C  FE C0		            inc al
+ 00000D8E  3A 05 00000000 R	            cmp al, donja_granica
+ 00000D94  0F 84 0000018E	            je dole
+ 00000D9A  8B C6		            mov eax,esi
+ 00000D9C  66| 03 05		            add ax,pom
+	   00000016 R
+ 00000DA3  8B F0		            mov esi,eax
+ 00000DA5  46			            inc esi
+ 00000DA6  46			            inc esi
+ 00000DA7  8A 06		            mov al, [esi]
+ 00000DA9  3C 01		            cmp al,01h
+ 00000DAB  0F 84 00000177	            je dole
+ 00000DB1  4E			            dec esi
+ 00000DB2  8A 06		            mov al, [esi]
+ 00000DB4  3C 01		            cmp al,01h
+ 00000DB6  0F 84 0000016C	            je dole
+ 00000DBC  4E			            dec esi
+ 00000DBD  8A 06		            mov al, [esi]
+ 00000DBF  3C 01		            cmp al,01h
+ 00000DC1  0F 84 00000161	            je dole
+ 00000DC7  E9 000001FF		            jmp kraj
+
+ 00000DCC  8B C6		       gore: mov eax,esi
+ 00000DCE  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000DD5  8B F0		             mov esi,eax
+ 00000DD7  8A 06		             mov al,[esi]
+ 00000DD9  3C 01		             cmp al,01h
+ 00000DDB  0F 84 000001EA	             je kraj
+ 00000DE1  41			             inc ecx
+ 00000DE2  8A C1		             mov al,cl
+ 00000DE4  3C 03		             cmp al,03h
+ 00000DE6  0F 87 000001DF	             ja kraj
+ 00000DEC  66| A1		             mov ax, pom
+	   00000016 R
+ 00000DF2  F6 65 08		             mul Xt
+ 00000DF5  66| 03 45 0C		             add ax  , Yt
+ 00000DF9  66| A3		             mov zed, ax
+	   00000014 R
+ 00000DFF  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000E04  8B C6		             mov eax, esi
+ 00000E06  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000E0D  8B F0		             mov esi,eax
+ 00000E0F  B0 00		             mov al,00h
+ 00000E11  88 06		             mov [esi],al
+ 00000E13  46			             inc esi
+ 00000E14  88 06		             mov [esi],al
+ 00000E16  46			             inc esi
+ 00000E17  88 06		             mov [esi],al
+ 00000E19  4E			             dec esi
+ 00000E1A  8B C6		             mov eax,esi
+ 00000E1C  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000E23  8B F0		             mov esi,eax
+ 00000E25  B0 00		             mov al,00h
+ 00000E27  88 06		             mov [esi],al
+ 00000E29  FE 4D 08		             dec Xt
+ 00000E2C  66| FF 4D 0C		             dec Yt
+ 00000E30  66| A1		             mov ax, pom
+	   00000016 R
+ 00000E36  F6 65 08		             mul Xt
+ 00000E39  66| 03 45 0C		             add ax  , Yt
+ 00000E3D  66| A3		             mov zed, ax
+	   00000014 R
+ 00000E43  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000E48  8B C6		             mov eax, esi
+ 00000E4A  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000E51  8B F0		             mov esi,eax
+ 00000E53  B0 02		             mov al,02h
+ 00000E55  88 06		             mov [esi],al
+ 00000E57  46			             inc esi
+ 00000E58  88 06		             mov [esi],al
+ 00000E5A  46			             inc esi
+ 00000E5B  88 06		             mov [esi],al
+ 00000E5D  4E			             dec esi
+ 00000E5E  8B C6		             mov eax,esi
+ 00000E60  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000E67  8B F0		             mov esi,eax
+ 00000E69  B0 03		             mov al,03h
+ 00000E6B  88 06		             mov [esi],al
+ 00000E6D  E8 FFFFF5FE		             call brisitenk
+ 00000E72  FE 0D 00000004 R	             dec xt1
+ 00000E78  66| FF 0D		             dec yt1
+	   00000005 R
+ 00000E7F  E8 FFFFF678		             call pisitenk
+ 00000E84  E9 00000142		             jmp kraj
+
+ 00000E89  41			       levo: inc ecx
+ 00000E8A  8A C1		             mov al,cl
+ 00000E8C  3C 03		             cmp al,03h
+ 00000E8E  0F 87 00000137	             ja kraj
+ 00000E94  66| A1		             mov ax, pom
+	   00000016 R
+ 00000E9A  F6 65 08		             mul Xt
+ 00000E9D  66| 03 45 0C		             add ax  , Yt
+ 00000EA1  66| A3		             mov zed, ax
+	   00000014 R
+ 00000EA7  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000EAC  8B C6		             mov eax, esi
+ 00000EAE  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000EB5  8B F0		             mov esi,eax
+ 00000EB7  B0 00		             mov al,00h
+ 00000EB9  88 06		             mov [esi],al
+ 00000EBB  46			             inc esi
+ 00000EBC  88 06		             mov [esi],al
+ 00000EBE  46			             inc esi
+ 00000EBF  88 06		             mov [esi],al
+ 00000EC1  4E			             dec esi
+ 00000EC2  8B C6		             mov eax,esi
+ 00000EC4  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000ECB  8B F0		             mov esi,eax
+ 00000ECD  B0 00		             mov al,00h
+ 00000ECF  88 06		             mov [esi],al
+ 00000ED1  66| FF 4D 0C		             dec Yt
+ 00000ED5  66| A1		             mov ax, pom
+	   00000016 R
+ 00000EDB  F6 65 08		             mul Xt
+ 00000EDE  66| 03 45 0C		             add ax  , Yt
+ 00000EE2  66| A3		             mov zed, ax
+	   00000014 R
+ 00000EE8  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000EED  8B C6		             mov eax, esi
+ 00000EEF  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000EF6  8B F0		             mov esi,eax
+ 00000EF8  B0 02		             mov al,02h
+ 00000EFA  88 06		             mov [esi],al
+ 00000EFC  46			             inc esi
+ 00000EFD  88 06		             mov [esi],al
+ 00000EFF  46			             inc esi
+ 00000F00  88 06		             mov [esi],al
+ 00000F02  4E			             dec esi
+ 00000F03  8B C6		             mov eax,esi
+ 00000F05  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000F0C  8B F0		             mov esi,eax
+ 00000F0E  B0 03		             mov al,03h
+ 00000F10  88 06		             mov [esi],al
+ 00000F12  E8 FFFFF559		             call brisitenk
+ 00000F17  66| FF 0D		             dec yt1
+	   00000005 R
+ 00000F1E  E8 FFFFF5D9		             call pisitenk  
+ 00000F23  E9 000000A3		             jmp kraj
+				           
+ 00000F28			        dole:
+ 00000F28  41			             inc ecx
+ 00000F29  8A C1		             mov al,cl
+ 00000F2B  3C 03		             cmp al,03h
+ 00000F2D  0F 87 00000098	             ja kraj
+ 00000F33  66| A1		             mov ax, pom
+	   00000016 R
+ 00000F39  F6 65 08		             mul Xt
+ 00000F3C  66| 03 45 0C		             add ax  , Yt
+ 00000F40  66| A3		             mov zed, ax
+	   00000014 R
+ 00000F46  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000F4B  8B C6		             mov eax, esi
+ 00000F4D  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000F54  8B F0		             mov esi,eax
+ 00000F56  B0 00		             mov al,00h
+ 00000F58  88 06		             mov [esi],al
+ 00000F5A  46			             inc esi
+ 00000F5B  88 06		             mov [esi],al
+ 00000F5D  46			             inc esi
+ 00000F5E  88 06		             mov [esi],al
+ 00000F60  4E			             dec esi
+ 00000F61  8B C6		             mov eax,esi
+ 00000F63  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000F6A  8B F0		             mov esi,eax
+ 00000F6C  B0 00		             mov al,00h
+ 00000F6E  88 06		             mov [esi],al
+ 00000F70  FE 45 08		             inc Xt
+ 00000F73  66| FF 4D 0C		             dec Yt
+ 00000F77  66| A1		             mov ax, pom
+	   00000016 R
+ 00000F7D  F6 65 08		             mul Xt
+ 00000F80  66| 03 45 0C		             add ax  , Yt
+ 00000F84  66| A3		             mov zed, ax
+	   00000014 R
+ 00000F8A  BE 00000018 R	             mov esi, OFFSET niz 
+ 00000F8F  8B C6		             mov eax, esi
+ 00000F91  66| 03 05		             add ax,zed
+	   00000014 R
+ 00000F98  8B F0		             mov esi,eax
+ 00000F9A  B0 02		             mov al,02h
+ 00000F9C  88 06		             mov [esi],al
+ 00000F9E  46			             inc esi
+ 00000F9F  88 06		             mov [esi],al
+ 00000FA1  46			             inc esi
+ 00000FA2  88 06		             mov [esi],al
+ 00000FA4  4E			             dec esi
+ 00000FA5  8B C6		             mov eax,esi
+ 00000FA7  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00000FAE  8B F0		             mov esi,eax
+ 00000FB0  B0 03		             mov al,03h
+ 00000FB2  88 06		             mov [esi],al
+ 00000FB4  E8 FFFFF4B7		             call brisitenk
+ 00000FB9  FE 05 00000004 R	             inc xt1
+ 00000FBF  66| FF 0D		             dec yt1
+	   00000005 R
+ 00000FC6  E8 FFFFF531		             call pisitenk
+
+
+ 00000FCB			kraj: ret
+ 00000FCB  5E		   *	    pop    esi
+ 00000FCC  58		   *	    pop    eax
+ 00000FCD  C9		   *	    leave  
+ 00000FCE  C3		   *	    ret    00000h
+
+
+
+ 00000FCF			T1levo endp
+
+ 00000FCF			T2desno proc c uses eax esi, Xt:BYTE,Yt:WORD
+
+ 00000FCF  55		   *	    push   ebp
+ 00000FD0  8B EC	   *	    mov    ebp, esp
+ 00000FD2  50		   *	    push   eax
+ 00000FD3  56		   *	    push   esi
+ 00000FD4  A0 00000007 R	    mov al,xt2
+ 00000FD9  88 45 08		    mov Xt,al
+ 00000FDC  66| A1		    mov ax,yt2
+	   00000008 R
+ 00000FE2  66| 89 45 0C		    mov Yt,ax
+ 00000FE6  66| FF 45 0C		    inc Yt
+ 00000FEA  66| FF 45 0C		    inc Yt
+ 00000FEE  66| A1		            mov ax, pom
+	   00000016 R
+ 00000FF4  F6 65 08		            mul Xt
+ 00000FF7  66| 03 45 0C		            add ax  , Yt
+ 00000FFB  66| A3		            mov zed, ax
+	   00000014 R
+
+ 00001001  BE 00000018 R	            mov esi, OFFSET niz 
+ 00001006  8B C6		            mov eax, esi
+ 00001008  66| 83 C0 01		            add ax, 01h
+ 0000100C  66| 03 05		            add ax, zed
+	   00000014 R
+ 00001013  8B F0		            mov esi, eax
+ 00001015  8A 06		            mov al, [esi]
+ 00001017  3C 02		            cmp al, 02h
+ 00001019  0F 84 0000029E	            je kraj
+ 0000101F  3C 01		            cmp al, 01h
+ 00001021  0F 84 00000097	            je gore
+ 00001027  8A 45 08		            mov al,Xt
+ 0000102A  3A 05 00000000 R	            cmp al, donja_granica
+ 00001030  0F 84 00000145	            je desno
+ 00001036  8B C6		            mov eax,esi
+ 00001038  66| 03 05		            add ax,pom
+	   00000016 R
+ 0000103F  8B F0		            mov esi,eax
+ 00001041  4E			            dec esi
+ 00001042  4E			            dec esi
+ 00001043  8A 06		            mov al, [esi]
+ 00001045  3C 02		            cmp al,02h
+ 00001047  0F 84 00000270	            je kraj
+ 0000104D  3C 01		            cmp al,01h
+ 0000104F  0F 84 00000126	            je desno
+ 00001055  46			            inc esi
+ 00001056  8A 06		            mov al, [esi]
+ 00001058  3C 02		            cmp al,02h
+ 0000105A  0F 84 0000025D	            je kraj
+ 00001060  3C 01		            cmp al,01h
+ 00001062  0F 84 00000113	            je desno
+ 00001068  46			            inc esi
+ 00001069  8A 06		            mov al, [esi]
+ 0000106B  3C 02		            cmp al,02h
+ 0000106D  0F 84 0000024A	            je kraj
+ 00001073  3C 01		            cmp al,01h
+ 00001075  0F 84 00000100	            je desno
+ 0000107B  8A 45 08		            mov al,Xt
+ 0000107E  FE C0		            inc al
+ 00001080  3A 05 00000000 R	            cmp al, donja_granica
+ 00001086  0F 84 0000018E	            je dole
+ 0000108C  8B C6		            mov eax,esi
+ 0000108E  66| 03 05		            add ax,pom
+	   00000016 R
+ 00001095  8B F0		            mov esi,eax
+ 00001097  4E			            dec esi
+ 00001098  4E			            dec esi
+ 00001099  8A 06		            mov al, [esi]
+ 0000109B  3C 01		            cmp al,01h
+ 0000109D  0F 84 00000177	            je dole
+ 000010A3  46			            inc esi
+ 000010A4  8A 06		            mov al, [esi]
+ 000010A6  3C 01		            cmp al,01h
+ 000010A8  0F 84 0000016C	            je dole
+ 000010AE  46			            inc esi
+ 000010AF  8A 06		            mov al, [esi]
+ 000010B1  3C 01		            cmp al,01h
+ 000010B3  0F 84 00000161	            je dole
+ 000010B9  E9 000001FF		            jmp kraj
+
+ 000010BE  8B C6		       gore: mov eax,esi
+ 000010C0  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000010C7  8B F0		             mov esi,eax
+ 000010C9  8A 06		             mov al,[esi]
+ 000010CB  3C 01		             cmp al,01h
+ 000010CD  0F 84 000001EA	             je kraj
+ 000010D3  41			             inc ecx
+ 000010D4  8A C1		             mov al,cl
+ 000010D6  3C 03		             cmp al,03h
+ 000010D8  0F 87 000001DF	             ja kraj
+ 000010DE  66| A1		             mov ax, pom
+	   00000016 R
+ 000010E4  F6 65 08		             mul Xt
+ 000010E7  66| 03 45 0C		             add ax  , Yt
+ 000010EB  66| A3		             mov zed, ax
+	   00000014 R
+ 000010F1  BE 00000018 R	             mov esi, OFFSET niz 
+ 000010F6  8B C6		             mov eax, esi
+ 000010F8  66| 03 05		             add ax,zed
+	   00000014 R
+ 000010FF  8B F0		             mov esi,eax
+ 00001101  B0 00		             mov al,00h
+ 00001103  88 06		             mov [esi],al
+ 00001105  4E			             dec esi
+ 00001106  88 06		             mov [esi],al
+ 00001108  4E			             dec esi
+ 00001109  88 06		             mov [esi],al
+ 0000110B  46			             inc esi
+ 0000110C  8B C6		             mov eax,esi
+ 0000110E  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00001115  8B F0		             mov esi,eax
+ 00001117  B0 00		             mov al,00h
+ 00001119  88 06		             mov [esi],al
+ 0000111B  FE 4D 08		             dec Xt
+ 0000111E  66| FF 45 0C		             inc Yt
+ 00001122  66| A1		             mov ax, pom
+	   00000016 R
+ 00001128  F6 65 08		             mul Xt
+ 0000112B  66| 03 45 0C		             add ax  , Yt
+ 0000112F  66| A3		             mov zed, ax
+	   00000014 R
+ 00001135  BE 00000018 R	             mov esi, OFFSET niz 
+ 0000113A  8B C6		             mov eax, esi
+ 0000113C  66| 03 05		             add ax,zed
+	   00000014 R
+ 00001143  8B F0		             mov esi,eax
+ 00001145  B0 02		             mov al,02h
+ 00001147  88 06		             mov [esi],al
+ 00001149  4E			             dec esi
+ 0000114A  88 06		             mov [esi],al
+ 0000114C  4E			             dec esi
+ 0000114D  88 06		             mov [esi],al
+ 0000114F  46			             inc esi
+ 00001150  8B C6		             mov eax,esi
+ 00001152  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00001159  8B F0		             mov esi,eax
+ 0000115B  B0 03		             mov al,03h
+ 0000115D  88 06		             mov [esi],al
+ 0000115F  E8 FFFFF30C		             call brisitenk
+ 00001164  FE 0D 00000007 R	             dec xt2
+ 0000116A  66| FF 05		             inc yt2
+	   00000008 R
+ 00001171  E8 FFFFF386		             call pisitenk
+ 00001176  E9 00000142		             jmp kraj
+
+ 0000117B  41			       desno:inc ecx
+ 0000117C  8A C1		             mov al,cl
+ 0000117E  3C 03		             cmp al,03h
+ 00001180  0F 87 00000137	             ja kraj
+ 00001186  66| A1		             mov ax, pom
+	   00000016 R
+ 0000118C  F6 65 08		             mul Xt
+ 0000118F  66| 03 45 0C		             add ax  , Yt
+ 00001193  66| A3		             mov zed, ax
+	   00000014 R
+ 00001199  BE 00000018 R	             mov esi, OFFSET niz 
+ 0000119E  8B C6		             mov eax, esi
+ 000011A0  66| 03 05		             add ax,zed
+	   00000014 R
+ 000011A7  8B F0		             mov esi,eax
+ 000011A9  B0 00		             mov al,00h
+ 000011AB  88 06		             mov [esi],al
+ 000011AD  4E			             dec esi
+ 000011AE  88 06		             mov [esi],al
+ 000011B0  4E			             dec esi
+ 000011B1  88 06		             mov [esi],al
+ 000011B3  46			             inc esi
+ 000011B4  8B C6		             mov eax,esi
+ 000011B6  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000011BD  8B F0		             mov esi,eax
+ 000011BF  B0 00		             mov al,00h
+ 000011C1  88 06		             mov [esi],al
+ 000011C3  66| FF 45 0C		             inc Yt
+ 000011C7  66| A1		             mov ax, pom
+	   00000016 R
+ 000011CD  F6 65 08		             mul Xt
+ 000011D0  66| 03 45 0C		             add ax  , Yt
+ 000011D4  66| A3		             mov zed, ax
+	   00000014 R
+ 000011DA  BE 00000018 R	             mov esi, OFFSET niz 
+ 000011DF  8B C6		             mov eax, esi
+ 000011E1  66| 03 05		             add ax,zed
+	   00000014 R
+ 000011E8  8B F0		             mov esi,eax
+ 000011EA  B0 02		             mov al,02h
+ 000011EC  88 06		             mov [esi],al
+ 000011EE  4E			             dec esi
+ 000011EF  88 06		             mov [esi],al
+ 000011F1  4E			             dec esi
+ 000011F2  88 06		             mov [esi],al
+ 000011F4  46			             inc esi
+ 000011F5  8B C6		             mov eax,esi
+ 000011F7  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000011FE  8B F0		             mov esi,eax
+ 00001200  B0 03		             mov al,03h
+ 00001202  88 06		             mov [esi],al
+ 00001204  E8 FFFFF267		             call brisitenk
+ 00001209  66| FF 05		             inc yt2
+	   00000008 R
+ 00001210  E8 FFFFF2E7		             call pisitenk
+ 00001215  E9 000000A3		             jmp kraj
+				           
+ 0000121A  41			        dole:inc ecx
+ 0000121B  8A C1		             mov al,cl
+ 0000121D  3C 03		             cmp al,03h
+ 0000121F  0F 87 00000098	             ja kraj
+ 00001225  66| A1		             mov ax, pom
+	   00000016 R
+ 0000122B  F6 65 08		             mul Xt
+ 0000122E  66| 03 45 0C		             add ax  , Yt
+ 00001232  66| A3		             mov zed, ax
+	   00000014 R
+ 00001238  BE 00000018 R	             mov esi, OFFSET niz 
+ 0000123D  8B C6		             mov eax, esi
+ 0000123F  66| 03 05		             add ax,zed
+	   00000014 R
+ 00001246  8B F0		             mov esi,eax
+ 00001248  B0 00		             mov al,00h
+ 0000124A  88 06		             mov [esi],al
+ 0000124C  4E			             dec esi
+ 0000124D  88 06		             mov [esi],al
+ 0000124F  4E			             dec esi
+ 00001250  88 06		             mov [esi],al
+ 00001252  46			             inc esi
+ 00001253  8B C6		             mov eax,esi
+ 00001255  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 0000125C  8B F0		             mov esi,eax
+ 0000125E  B0 00		             mov al,00h
+ 00001260  88 06		             mov [esi],al
+ 00001262  FE 45 08		             inc Xt
+ 00001265  66| FF 45 0C		             inc Yt
+ 00001269  66| A1		             mov ax, pom
+	   00000016 R
+ 0000126F  F6 65 08		             mul Xt
+ 00001272  66| 03 45 0C		             add ax  , Yt
+ 00001276  66| A3		             mov zed, ax
+	   00000014 R
+ 0000127C  BE 00000018 R	             mov esi, OFFSET niz 
+ 00001281  8B C6		             mov eax, esi
+ 00001283  66| 03 05		             add ax,zed
+	   00000014 R
+ 0000128A  8B F0		             mov esi,eax
+ 0000128C  B0 02		             mov al,02h
+ 0000128E  88 06		             mov [esi],al
+ 00001290  4E			             dec esi
+ 00001291  88 06		             mov [esi],al
+ 00001293  4E			             dec esi
+ 00001294  88 06		             mov [esi],al
+ 00001296  46			             inc esi
+ 00001297  8B C6		             mov eax,esi
+ 00001299  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000012A0  8B F0		             mov esi,eax
+ 000012A2  B0 03		             mov al,03h
+ 000012A4  88 06		             mov [esi],al
+ 000012A6  E8 FFFFF1C5		             call brisitenk
+ 000012AB  FE 05 00000007 R	             inc xt2
+ 000012B1  66| FF 05		             inc yt2
+	   00000008 R
+ 000012B8  E8 FFFFF23F		             call pisitenk
+
+
+ 000012BD			kraj: ret
+ 000012BD  5E		   *	    pop    esi
+ 000012BE  58		   *	    pop    eax
+ 000012BF  C9		   *	    leave  
+ 000012C0  C3		   *	    ret    00000h
+
+
+ 000012C1			T2desno endp
+ 000012C1			T2levo proc c uses eax esi, Xt:BYTE,Yt:WORD
+
+
+
+ 000012C1  55		   *	    push   ebp
+ 000012C2  8B EC	   *	    mov    ebp, esp
+ 000012C4  50		   *	    push   eax
+ 000012C5  56		   *	    push   esi
+ 000012C6  A0 00000007 R	    mov al,xt2
+ 000012CB  88 45 08		    mov Xt,al
+ 000012CE  66| A1		    mov ax,yt2
+	   00000008 R
+ 000012D4  66| 89 45 0C		    mov Yt,ax
+ 000012D8  66| A1		            mov ax, pom
+	   00000016 R
+ 000012DE  F6 65 08		            mul Xt
+ 000012E1  66| 03 45 0C		            add ax  , Yt
+ 000012E5  66| A3		            mov zed, ax
+	   00000014 R
+
+ 000012EB  BE 00000018 R	            mov esi, OFFSET niz 
+ 000012F0  8B C6		            mov eax, esi
+ 000012F2  66| 83 E8 01		            sub ax, 01h
+ 000012F6  66| 03 05		            add ax, zed
+	   00000014 R
+ 000012FD  8B F0		            mov esi, eax
+ 000012FF  8A 06		            mov al, [esi]
+ 00001301  3C 02		            cmp al, 02h
+ 00001303  0F 84 0000029E	            je kraj
+ 00001309  3C 01		            cmp al,01h
+ 0000130B  0F 84 00000097	            je gore
+ 00001311  8A 45 08		            mov al,Xt
+ 00001314  3A 05 00000000 R	            cmp al, donja_granica
+ 0000131A  0F 84 00000145	            je levo
+ 00001320  8B C6		            mov eax,esi
+ 00001322  66| 03 05		            add ax,pom
+	   00000016 R
+ 00001329  8B F0		            mov esi,eax
+ 0000132B  46			            inc esi
+ 0000132C  46			            inc esi
+ 0000132D  8A 06		            mov al, [esi]
+ 0000132F  3C 02		            cmp al,02h
+ 00001331  0F 84 00000270	            je kraj
+ 00001337  3C 01		            cmp al,01h
+ 00001339  0F 84 00000126	            je levo
+ 0000133F  4E			            dec esi
+ 00001340  8A 06		            mov al, [esi]
+ 00001342  3C 02		            cmp al,02h
+ 00001344  0F 84 0000025D	            je kraj
+ 0000134A  3C 01		            cmp al,01h
+ 0000134C  0F 84 00000113	            je levo
+ 00001352  4E			            dec esi
+ 00001353  8A 06		            mov al, [esi]
+ 00001355  3C 02		            cmp al,02h
+ 00001357  0F 84 0000024A	            je kraj
+ 0000135D  3C 01		            cmp al,01h
+ 0000135F  0F 84 00000100	            je levo
+ 00001365  8A 45 08		            mov al,Xt
+ 00001368  FE C0		            inc al
+ 0000136A  3A 05 00000000 R	            cmp al, donja_granica
+ 00001370  0F 84 0000018E	            je dole
+ 00001376  8B C6		            mov eax,esi
+ 00001378  66| 03 05		            add ax,pom
+	   00000016 R
+ 0000137F  8B F0		            mov esi,eax
+ 00001381  46			            inc esi
+ 00001382  46			            inc esi
+ 00001383  8A 06		            mov al, [esi]
+ 00001385  3C 01		            cmp al,01h
+ 00001387  0F 84 00000177	            je dole
+ 0000138D  4E			            dec esi
+ 0000138E  8A 06		            mov al, [esi]
+ 00001390  3C 01		            cmp al,01h
+ 00001392  0F 84 0000016C	            je dole
+ 00001398  4E			            dec esi
+ 00001399  8A 06		            mov al, [esi]
+ 0000139B  3C 01		            cmp al,01h
+ 0000139D  0F 84 00000161	            je dole
+ 000013A3  E9 000001FF		            jmp kraj
+
+ 000013A8  8B C6		       gore: mov eax,esi
+ 000013AA  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000013B1  8B F0		             mov esi,eax
+ 000013B3  8A 06		             mov al,[esi]
+ 000013B5  3C 01		             cmp al,01h
+ 000013B7  0F 84 000001EA	             je kraj
+ 000013BD  41			             inc ecx
+ 000013BE  8A C1		             mov al,cl
+ 000013C0  3C 03		             cmp al,03h
+ 000013C2  0F 87 000001DF	             ja kraj
+ 000013C8  66| A1		             mov ax, pom
+	   00000016 R
+ 000013CE  F6 65 08		             mul Xt
+ 000013D1  66| 03 45 0C		             add ax  , Yt
+ 000013D5  66| A3		             mov zed, ax
+	   00000014 R
+ 000013DB  BE 00000018 R	             mov esi, OFFSET niz 
+ 000013E0  8B C6		             mov eax, esi
+ 000013E2  66| 03 05		             add ax,zed
+	   00000014 R
+ 000013E9  8B F0		             mov esi,eax
+ 000013EB  B0 00		             mov al,00h
+ 000013ED  88 06		             mov [esi],al
+ 000013EF  46			             inc esi
+ 000013F0  88 06		             mov [esi],al
+ 000013F2  46			             inc esi
+ 000013F3  88 06		             mov [esi],al
+ 000013F5  4E			             dec esi
+ 000013F6  8B C6		             mov eax,esi
+ 000013F8  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000013FF  8B F0		             mov esi,eax
+ 00001401  B0 00		             mov al,00h
+ 00001403  88 06		             mov [esi],al
+ 00001405  FE 4D 08		             dec Xt
+ 00001408  66| FF 4D 0C		             dec Yt
+ 0000140C  66| A1		             mov ax, pom
+	   00000016 R
+ 00001412  F6 65 08		             mul Xt
+ 00001415  66| 03 45 0C		             add ax  , Yt
+ 00001419  66| A3		             mov zed, ax
+	   00000014 R
+ 0000141F  BE 00000018 R	             mov esi, OFFSET niz 
+ 00001424  8B C6		             mov eax, esi
+ 00001426  66| 03 05		             add ax,zed
+	   00000014 R
+ 0000142D  8B F0		             mov esi,eax
+ 0000142F  B0 02		             mov al,02h
+ 00001431  88 06		             mov [esi],al
+ 00001433  46			             inc esi
+ 00001434  88 06		             mov [esi],al
+ 00001436  46			             inc esi
+ 00001437  88 06		             mov [esi],al
+ 00001439  4E			             dec esi
+ 0000143A  8B C6		             mov eax,esi
+ 0000143C  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00001443  8B F0		             mov esi,eax
+ 00001445  B0 03		             mov al,03h
+ 00001447  88 06		             mov [esi],al
+ 00001449  E8 FFFFF022		             call brisitenk
+ 0000144E  FE 0D 00000007 R	             dec xt2
+ 00001454  66| FF 0D		             dec yt2
+	   00000008 R
+ 0000145B  E8 FFFFF09C		             call pisitenk
+ 00001460  E9 00000142		             jmp kraj
+
+ 00001465  41			       levo: inc ecx
+ 00001466  8A C1		             mov al,cl
+ 00001468  3C 03		             cmp al,03h
+ 0000146A  0F 87 00000137	             ja kraj
+ 00001470  66| A1		             mov ax, pom
+	   00000016 R
+ 00001476  F6 65 08		             mul Xt
+ 00001479  66| 03 45 0C		             add ax  , Yt
+ 0000147D  66| A3		             mov zed, ax
+	   00000014 R
+ 00001483  BE 00000018 R	             mov esi, OFFSET niz 
+ 00001488  8B C6		             mov eax, esi
+ 0000148A  66| 03 05		             add ax,zed
+	   00000014 R
+ 00001491  8B F0		             mov esi,eax
+ 00001493  B0 00		             mov al,00h
+ 00001495  88 06		             mov [esi],al
+ 00001497  46			             inc esi
+ 00001498  88 06		             mov [esi],al
+ 0000149A  46			             inc esi
+ 0000149B  88 06		             mov [esi],al
+ 0000149D  4E			             dec esi
+ 0000149E  8B C6		             mov eax,esi
+ 000014A0  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000014A7  8B F0		             mov esi,eax
+ 000014A9  B0 00		             mov al,00h
+ 000014AB  88 06		             mov [esi],al
+ 000014AD  66| FF 4D 0C		             dec Yt
+ 000014B1  66| A1		             mov ax, pom
+	   00000016 R
+ 000014B7  F6 65 08		             mul Xt
+ 000014BA  66| 03 45 0C		             add ax  , Yt
+ 000014BE  66| A3		             mov zed, ax
+	   00000014 R
+ 000014C4  BE 00000018 R	             mov esi, OFFSET niz 
+ 000014C9  8B C6		             mov eax, esi
+ 000014CB  66| 03 05		             add ax,zed
+	   00000014 R
+ 000014D2  8B F0		             mov esi,eax
+ 000014D4  B0 02		             mov al,02h
+ 000014D6  88 06		             mov [esi],al
+ 000014D8  46			             inc esi
+ 000014D9  88 06		             mov [esi],al
+ 000014DB  46			             inc esi
+ 000014DC  88 06		             mov [esi],al
+ 000014DE  4E			             dec esi
+ 000014DF  8B C6		             mov eax,esi
+ 000014E1  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 000014E8  8B F0		             mov esi,eax
+ 000014EA  B0 03		             mov al,03h
+ 000014EC  88 06		             mov [esi],al
+ 000014EE  E8 FFFFEF7D		             call brisitenk
+ 000014F3  66| FF 0D		             dec yt2
+	   00000008 R
+ 000014FA  E8 FFFFEFFD		             call pisitenk
+ 000014FF  E9 000000A3		             jmp kraj
+				           
+ 00001504  41			        dole:inc ecx
+ 00001505  8A C1		             mov al,cl
+ 00001507  3C 03		             cmp al,03h
+ 00001509  0F 87 00000098	             ja kraj
+ 0000150F  66| A1		             mov ax, pom
+	   00000016 R
+ 00001515  F6 65 08		             mul Xt
+ 00001518  66| 03 45 0C		             add ax  , Yt
+ 0000151C  66| A3		             mov zed, ax
+	   00000014 R
+ 00001522  BE 00000018 R	             mov esi, OFFSET niz 
+ 00001527  8B C6		             mov eax, esi
+ 00001529  66| 03 05		             add ax,zed
+	   00000014 R
+ 00001530  8B F0		             mov esi,eax
+ 00001532  B0 00		             mov al,00h
+ 00001534  88 06		             mov [esi],al
+ 00001536  46			             inc esi
+ 00001537  88 06		             mov [esi],al
+ 00001539  46			             inc esi
+ 0000153A  88 06		             mov [esi],al
+ 0000153C  4E			             dec esi
+ 0000153D  8B C6		             mov eax,esi
+ 0000153F  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 00001546  8B F0		             mov esi,eax
+ 00001548  B0 00		             mov al,00h
+ 0000154A  88 06		             mov [esi],al
+ 0000154C  FE 45 08		             inc Xt
+ 0000154F  66| FF 4D 0C		             dec Yt
+ 00001553  66| A1		             mov ax, pom
+	   00000016 R
+ 00001559  F6 65 08		             mul Xt
+ 0000155C  66| 03 45 0C		             add ax  , Yt
+ 00001560  66| A3		             mov zed, ax
+	   00000014 R
+ 00001566  BE 00000018 R	             mov esi, OFFSET niz 
+ 0000156B  8B C6		             mov eax, esi
+ 0000156D  66| 03 05		             add ax,zed
+	   00000014 R
+ 00001574  8B F0		             mov esi,eax
+ 00001576  B0 02		             mov al,02h
+ 00001578  88 06		             mov [esi],al
+ 0000157A  46			             inc esi
+ 0000157B  88 06		             mov [esi],al
+ 0000157D  46			             inc esi
+ 0000157E  88 06		             mov [esi],al
+ 00001580  4E			             dec esi
+ 00001581  8B C6		             mov eax,esi
+ 00001583  66| 2B 05		             sub ax,pom
+	   00000016 R
+ 0000158A  8B F0		             mov esi,eax
+ 0000158C  B0 03		             mov al,03h
+ 0000158E  88 06		             mov [esi],al
+ 00001590  E8 FFFFEEDB		             call brisitenk
+ 00001595  FE 05 00000007 R	             inc xt2
+ 0000159B  66| FF 0D		             dec yt2
+	   00000008 R
+ 000015A2  E8 FFFFEF55		             call pisitenk
+
+
+ 000015A7			kraj: ret
+ 000015A7  5E		   *	    pop    esi
+ 000015A8  58		   *	    pop    eax
+ 000015A9  C9		   *	    leave  
+ 000015AA  C3		   *	    ret    00000h
+
+ 000015AB			T2levo endp
+ 000015AB			pucanj1 proc c uses eax esi edx Xp:BYTE,Yp:WORD,Xb:BYTE,Yb:BYTE, ceo_deo:BYTE, delta_x:Byte , delta_y:Byte 
+
+ 000015AB  55		   *	    push   ebp
+ 000015AC  8B EC	   *	    mov    ebp, esp
+ 000015AE  50		   *	    push   eax
+ 000015AF  56		   *	    push   esi
+ 000015B0  52		   *	    push   edx
+ 000015B1  C6 45 1C 00		    mov delta_x,00h
+ 000015B5  C6 45 20 00		    mov delta_y,00h
+ 000015B9  80 3D 000008DE R	    cmp ugao_znak1,0h
+	   00
+ 000015C0  75 09		    jne skok
+ 000015C2  C6 05 0000000D R	    mov x_bilo_0,0h
+	   00
+ 000015C9  EB 07		    jmp skok1
+ 000015CB  C6 05 0000000D R	skok:mov x_bilo_0,01h
+	   01
+ 000015D2  A0 00000004 R	skok1:mov al,xt1
+ 000015D7  2C 01		    sub al,01h
+ 000015D9  88 45 08		    mov Xp,al
+ 000015DC  66| A1		    mov ax, yt1
+	   00000005 R
+ 000015E2  66| 83 C0 03		    add ax,03h
+ 000015E6  66| 89 45 0C		    mov Yp,ax
+ 000015EA  8A 45 08		    mov al,Xp
+ 000015ED  A2 0000000A R	    mov xgr,al
+ 000015F2  66| 8B 45 0C		    mov ax,Yp
+ 000015F6  66| A3		    mov ygr,ax
+	   0000000B R
+ 000015FC  8A 35 0000000A R	    mov dh,xgr
+ 00001602  66| A1		    mov ax,ygr
+	   0000000B R
+ 00001608  8A D0		    mov dl,al
+ 0000160A  80 C6 02		    add dh,02h
+ 0000160D  E8 00000000 E	    call Gotoxy
+ 00001612  B0 F8		    MOV al,0F8h
+ 00001614  E8 00000000 E	    call WriteChar
+				        
+ 00001619  66| A1		        mov ax,ugao1
+	   0000000E R
+ 0000161F  F6 35 00000012 R	        div step
+ 00001625  88 45 10		        mov Xb,al
+ 00001628  B0 09		        mov al,09h
+ 0000162A  2A 45 10		        sub al,Xb
+ 0000162D  88 45 14		        mov Yb,al
+
+				    
+
+				   
+
+ 00001630  66| A1		              mov ax, pom
+	   00000016 R
+ 00001636  F6 65 08		              mul Xp
+ 00001639  66| 03 45 0C		              add ax  , Yp
+ 0000163D  66| A3		              mov zed, ax
+	   00000014 R
+ 00001643  BE 00000018 R	              mov esi, OFFSET niz 
+ 00001648  8B C6		              mov eax, esi
+ 0000164A  66| 03 05		              add ax, zed
+	   00000014 R
+ 00001651  8B F0		              mov esi, eax
+ 00001653  8A 06		              mov al, [esi]
+ 00001655  3C 02		              cmp al, 02h
+ 00001657  0F 84 000002CF	              je kraj
+ 0000165D  3C 01		              cmp al, 01h
+ 0000165F  0F 84 000002C7	              je kraj
+ 00001665  80 3D 000008DB R	              cmp snaga1,01
+	   01
+ 0000166C  75 08		              jne poc
+ 0000166E  80 45 14 01		              add Yb,01h
+ 00001672  80 45 10 01		              add Xb,01h
+ 00001676  33 C0		         poc: xor eax, eax
+ 00001678  8A 45 10		              mov al, Xb
+ 0000167B  3A 45 14		              cmp al, Yb
+ 0000167E  0F 87 00000089	              ja xvecey
+
+
+ 00001684  33 C0		              xor eax,eax ;yvecex
+ 00001686  33 C9		              xor ecx,ecx
+ 00001688  41			              inc ecx
+ 00001689  8A 45 14		              mov al, Yb
+ 0000168C  80 7D 10 00		              cmp Xb,00h
+ 00001690  0F 84 000001D7	              je x_je_0
+ 00001696  F6 75 10		              div Xb
+ 00001699  88 45 18		              MOV ceo_deo,al
+ 0000169C  8A C4		              mov al,ah
+ 0000169E  3C 01		              cmp al, 01h
+ 000016A0  0F 87 0000027E	              ja ceoinc2
+ 000016A6  66| FF 45 0C		              dalje2: inc Yp
+ 000016AA  FE 45 20		                      inc delta_y
+ 000016AD  8A 45 14		                      mov al, Yb
+ 000016B0  38 45 20		                      cmp delta_y,al
+ 000016B3  0F 84 00000143	                      je provera_x
+ 000016B9  3A 4D 18		                      cmp cl, ceo_deo
+ 000016BC  0F 83 0000023F	                      jae pomeranjemanjeg2
+ 000016C2  FE C1		             provera2:inc cl
+ 000016C4  80 3D 0000000A R	                      cmp xgr,00h
+	   00
+ 000016CB  7E 27		                      jle preskok
+ 000016CD  8A 35 0000000A R	                      mov dh,xgr
+ 000016D3  66| A1		                      mov ax,ygr
+	   0000000B R
+ 000016D9  80 C6 02		                      add dh,02h
+ 000016DC  8A D0		                      mov dl,al
+ 000016DE  B8 000000F9		                      mov eax,LightBlue + (white * 16)
+ 000016E3  E8 00000000 E	 	                 call SetTextColor
+ 000016E8  E8 00000000 E	                      call Gotoxy
+ 000016ED  B0 B0		                      MOV al,0b0h
+ 000016EF  E8 00000000 E	                      call WriteChar
+ 000016F4  8A 45 08		              preskok:mov al,Xp
+ 000016F7  A2 0000000A R	                      mov xgr,al
+ 000016FC  66| 8B 45 0C		                      mov ax,Yp
+ 00001700  66| A3		                      mov ygr,ax
+	   0000000B R
+ 00001706  E8 000005B4		                      call udar
+ 0000170B  EB 99		                      jmp dalje2
+
+
+				              
+
+ 0000170D  33 C0		              xvecey:  xor eax,eax
+ 0000170F  33 C9		                        xor ecx,ecx
+ 00001711  41			                        inc ecx
+ 00001712  8A 45 10		                        mov al, Xb
+ 00001715  F6 75 14		                        div Yb
+ 00001718  88 45 18		                        MOV ceo_deo,al
+ 0000171B  8A C4		                        mov al,ah
+ 0000171D  3C 01		                        cmp al, 01h
+ 0000171F  0F 87 000001F7	                        ja ceoinc1
+ 00001725  80 3D 0000000D R	                 dalje1:cmp x_bilo_0,01h
+	   01
+ 0000172C  74 05		                        je rast
+ 0000172E  FE 4D 08		                        dec Xp
+ 00001731  EB 03		                        jmp nastavi
+ 00001733  FE 45 08		                        rast: inc Xp
+ 00001736  FE 45 1C		                 nastavi:inc delta_x
+ 00001739  8A 45 10		                        mov al, Xb
+ 0000173C  38 45 1C		                        cmp delta_x, al
+ 0000173F  74 53		                        je provera_y
+ 00001741  3A 4D 18		                        cmp cl, ceo_deo
+ 00001744  0F 83 000001A9	                        jae pomeranjemanjeg1
+ 0000174A  41			               provera1:inc ecx
+ 0000174B  80 3D 0000000A R	                        cmp xgr,00h
+	   00
+ 00001752  7E 27		                        jle preskok1
+ 00001754  8A 35 0000000A R	                        mov dh,xgr
+ 0000175A  66| A1		                        mov ax,ygr
+	   0000000B R
+ 00001760  8A D0		                        mov dl,al
+ 00001762  80 C6 02		                        add dh,02h
+ 00001765  B8 000000F9		                        mov eax,LightBlue + (white * 16)
+ 0000176A  E8 00000000 E	 	                   call SetTextColor
+ 0000176F  E8 00000000 E	                        call Gotoxy
+ 00001774  B0 B0		                        MOV al,0b0h
+ 00001776  E8 00000000 E	                        call WriteChar
+ 0000177B  8A 45 08		               preskok1:mov al,Xp
+ 0000177E  A2 0000000A R	                        mov xgr,al
+ 00001783  66| 8B 45 0C		                        mov ax,Yp
+ 00001787  66| A3		                        mov ygr,ax
+	   0000000B R
+ 0000178D  E8 0000052D		                        call udar
+ 00001792  EB 91		                        jmp dalje1
+
+ 00001794  8A 45 14		                        provera_y: mov al, Yb
+ 00001797  38 45 20		                                    cmp delta_y,al
+ 0000179A  0F 84 00000135	                                   je smanji_brzinu
+ 000017A0  66| FF 45 0C		                                vrt:inc Yp
+ 000017A4  FE 45 20		                                   INC delta_y
+ 000017A7  80 3D 0000000A R	                                   cmp xgr,00h
+	   00
+ 000017AE  7E 27		                                   jle preskok2
+ 000017B0  8A 35 0000000A R	                                   mov dh,xgr
+ 000017B6  66| A1		                                   mov ax,ygr
+	   0000000B R
+ 000017BC  8A D0		                                   mov dl,al
+ 000017BE  80 C6 02		                                   add dh,02h
+ 000017C1  B8 000000F9		                                   mov eax,LightBlue + (white * 16)
+ 000017C6  E8 00000000 E	 	                              call SetTextColor
+ 000017CB  E8 00000000 E	                                   call Gotoxy
+ 000017D0  B0 B0		                                   MOV al,0b0h
+ 000017D2  E8 00000000 E	                                   call WriteChar
+ 000017D7  8A 45 08		                           preskok2:mov al,Xp
+ 000017DA  A2 0000000A R	                                   mov xgr,al
+ 000017DF  66| 8B 45 0C		                                   mov ax,Yp
+ 000017E3  66| A3		                                   mov ygr,ax
+	   0000000B R
+ 000017E9  E8 000004D1		                                   call udar
+ 000017EE  8A 45 14		                                   mov al, Yb
+ 000017F1  38 45 20		                                   cmp delta_y,al
+ 000017F4  0F 84 000000DB	                                   je smanji_brzinu
+ 000017FA  EB A4		                                   jmp vrt
+
+ 000017FC  8A 45 10		                        provera_x:  mov al , Xb
+ 000017FF  38 45 1C		                                    cmp delta_x,al
+ 00001802  0F 84 000000CD	                                   je smanji_brzinu
+ 00001808  80 3D 0000000D R	                                vrt1:cmp x_bilo_0,01h
+	   01
+ 0000180F  74 05		                                    je rast1
+ 00001811  FE 4D 08		                                    dec Xp
+ 00001814  EB 03		                                    jmp nastavi1
+ 00001816  FE 45 08		                                    rast1: inc Xp
+ 00001819  FE 45 1C		                           nastavi1: INC delta_x
+ 0000181C  80 3D 0000000A R	                                   cmp xgr,00h
+	   00
+ 00001823  7E 27		                                   jle preskok3
+ 00001825  8A 35 0000000A R	                                   mov dh,xgr
+ 0000182B  66| A1		                                   mov ax,ygr
+	   0000000B R
+ 00001831  8A D0		                                   mov dl,al
+ 00001833  80 C6 02		                                   add dh,02h
+ 00001836  B8 000000F9		                                   mov eax,LightBlue + (white * 16)
+ 0000183B  E8 00000000 E	 	                              call SetTextColor
+ 00001840  E8 00000000 E	                                   call Gotoxy
+ 00001845  B0 B0		                                   MOV al,0b0h
+ 00001847  E8 00000000 E	                                   call WriteChar
+ 0000184C  8A 45 08		                          preskok3:mov al,Xp
+ 0000184F  A2 0000000A R	                                   mov xgr,al
+ 00001854  66| 8B 45 0C		                                   mov ax,Yp
+ 00001858  66| A3		                                   mov ygr,ax
+	   0000000B R
+ 0000185E  E8 0000045C		                                   call udar
+ 00001863  8A 45 10		                                   mov al,Xb
+ 00001866  38 45 1C		                                   cmp delta_X,al
+ 00001869  74 6A		                                   je smanji_brzinu
+ 0000186B  EB 9B		                                   jmp vrt1
+
+ 0000186D  C6 05 0000000D R	                        x_je_0:mov x_bilo_0,01h
+	   01
+ 00001874  66| FF 45 0C		                               inc Yp
+ 00001878  FE 45 20		                               inc delta_y
+ 0000187B  8A 45 14		                               mov al, Yb
+ 0000187E  38 45 20		                               cmp delta_y,al
+ 00001881  75 04		                               jne skok_dalje
+ 00001883  66| FF 4D 0C		                               dec Yp
+ 00001887  38 45 20		                   skok_dalje: cmp delta_y,al
+ 0000188A  74 49		                               je smanji_brzinu
+ 0000188C  80 3D 0000000A R	                               cmp xgr,00h
+	   00
+ 00001893  7E 27		                               jle preskok4
+ 00001895  8A 35 0000000A R	                               mov dh,xgr
+ 0000189B  66| A1		                               mov ax,ygr
+	   0000000B R
+ 000018A1  8A D0		                               mov dl,al
+ 000018A3  80 C6 02		                               add dh,02h
+ 000018A6  B8 000000F9		                               mov eax,LightBlue + (white * 16)
+ 000018AB  E8 00000000 E	 	                          call SetTextColor
+ 000018B0  E8 00000000 E	                               call Gotoxy
+ 000018B5  B0 B0		                               MOV al,0b0h
+ 000018B7  E8 00000000 E	                               call WriteChar
+ 000018BC  8A 45 08		                      preskok4:mov al,Xp
+ 000018BF  A2 0000000A R	                               mov xgr,al
+ 000018C4  66| 8B 45 0C		                               mov ax,Yp
+ 000018C8  66| A3		                               mov ygr,ax
+	   0000000B R
+ 000018CE  E8 000003EC		                               call udar
+ 000018D3  EB 98		                               jmp x_je_0
+
+ 000018D5  80 3D 0000000D R	                        smanji_brzinu: cmp x_bilo_0,01h                                      
+	   01
+ 000018DC  74 05		                                        je rast3
+ 000018DE  FE 4D 10		                                        dec Xb
+ 000018E1  EB 03		                                        jmp nastavi3
+ 000018E3  FE 45 10		                                  rast3:inc Xb
+ 000018E6  C6 45 1C 00		                                nastavi3:mov delta_x,00h
+ 000018EA  C6 45 20 00		                                        mov delta_y,00h
+ 000018EE  E9 FFFFFD83		                                        jmp poc
+
+ 000018F3  66| FF 45 0C		                        pomeranjemanjeg1: inc Yp
+ 000018F7  FE 45 20		                                          inc delta_y
+ 000018FA  33 C9		                                         xor ecx,ecx
+ 000018FC  E9 FFFFFE49		                                         jmp provera1
+ 00001901  80 3D 0000000D R	                        pomeranjemanjeg2:cmp x_bilo_0,01h
+	   01
+ 00001908  74 05		                                         je rast2
+ 0000190A  FE 4D 08		                                         dec Xp
+ 0000190D  EB 03		                                         jmp nastavi2
+ 0000190F  FE 45 08		                                         rast2: inc Xp
+ 00001912  FE 45 1C		                                 nastavi2:inc delta_x
+ 00001915  33 C9		                                         xor ecx,ecx
+ 00001917  E9 FFFFFDA6		                                         jmp provera2
+
+ 0000191C  FE 45 18		                        ceoinc1: inc ceo_deo
+ 0000191F  E9 FFFFFE01		                        jmp dalje1
+ 00001924  FE 45 18		                        ceoinc2: inc ceo_deo
+ 00001927  E9 FFFFFD7A		                        jmp dalje2
+				                      
+
+				                        
+				              
+
+
+				            
+
+ 0000192C  E8 0000038E		              kraj:call udar
+				              ret
+ 00001931  5A		   *	    pop    edx
+ 00001932  5E		   *	    pop    esi
+ 00001933  58		   *	    pop    eax
+ 00001934  C9		   *	    leave  
+ 00001935  C3		   *	    ret    00000h
+
+
+ 00001936			pucanj1 endp
+
+ 00001936			pucanj2 proc c uses eax esi edx Xp:BYTE,Yp:WORD,Xb:BYTE,Yb:BYTE, ceo_deo:BYTE, delta_x:Byte , delta_y:Byte
+
+ 00001936  55		   *	    push   ebp
+ 00001937  8B EC	   *	    mov    ebp, esp
+ 00001939  50		   *	    push   eax
+ 0000193A  56		   *	    push   esi
+ 0000193B  52		   *	    push   edx
+ 0000193C  C6 45 1C 00		    mov delta_x,00h
+ 00001940  C6 45 20 00		    mov delta_y,00h
+ 00001944  80 3D 000008DF R	    cmp ugao_znak2,0h
+	   00
+ 0000194B  75 09		    jne skok
+ 0000194D  C6 05 0000000D R	    mov x_bilo_0,0h
+	   00
+ 00001954  EB 07		    jmp skok1
+ 00001956  C6 05 0000000D R	skok:mov x_bilo_0,01h
+	   01
+ 0000195D  A0 00000007 R	skok1:mov al,xt2
+ 00001962  2C 01		    sub al,01h
+ 00001964  88 45 08		    mov Xp,al
+ 00001967  66| A1		    mov ax, yt2
+	   00000008 R
+ 0000196D  2C 01		    sub al,01h
+ 0000196F  66| 89 45 0C		    mov Yp,ax
+ 00001973  8A 45 08		    mov al,Xp
+ 00001976  A2 0000000A R	    mov xgr,al
+ 0000197B  66| 8B 45 0C		    mov ax,Yp
+ 0000197F  66| A3		    mov ygr,ax
+	   0000000B R
+ 00001985  8A 35 0000000A R	    mov dh,xgr
+ 0000198B  66| A1		    mov ax,ygr
+	   0000000B R
+ 00001991  8A D0		    mov dl,al
+ 00001993  80 C6 02		    add dh,02h
+ 00001996  E8 00000000 E	    call Gotoxy
+ 0000199B  B0 F8		    MOV al,0F8h
+ 0000199D  E8 00000000 E	    call WriteChar
+				        
+ 000019A2  66| A1		        mov ax,ugao2
+	   00000010 R
+ 000019A8  F6 35 00000012 R	        div step
+ 000019AE  88 45 10		        mov Xb,al
+ 000019B1  B0 09		        mov al,09h
+ 000019B3  2A 45 10		        sub al,Xb
+ 000019B6  88 45 14		        mov Yb,al
+				        
+
+				   
+
+ 000019B9  66| A1		              mov ax, pom
+	   00000016 R
+ 000019BF  F6 65 08		              mul Xp
+ 000019C2  66| 03 45 0C		              add ax  , Yp
+ 000019C6  66| A3		              mov zed, ax
+	   00000014 R
+ 000019CC  BE 00000018 R	              mov esi, OFFSET niz 
+ 000019D1  8B C6		              mov eax, esi
+ 000019D3  66| 03 05		              add ax, zed
+	   00000014 R
+ 000019DA  8B F0		              mov esi, eax
+ 000019DC  8A 06		              mov al, [esi]
+ 000019DE  3C 02		              cmp al, 02h
+ 000019E0  0F 84 000002CF	              je kraj
+ 000019E6  3C 01		              cmp al, 01h
+ 000019E8  0F 84 000002C7	              je kraj
+ 000019EE  80 3D 000008DC R	              cmp snaga2,01
+	   01
+ 000019F5  75 08		              jne poc
+ 000019F7  80 45 14 01		              add Yb,01h
+ 000019FB  80 45 10 01		              add Xb,01h
+ 000019FF  33 C0		          poc: xor eax, eax
+ 00001A01  8A 45 10		              mov al, Xb
+ 00001A04  3A 45 14		              cmp al, Yb
+ 00001A07  0F 87 00000089	              ja xvecey
+
+
+ 00001A0D  33 C0		              xor eax,eax ;yvecex
+ 00001A0F  33 C9		              xor ecx,ecx
+ 00001A11  41			              inc ecx
+ 00001A12  8A 45 14		              mov al, Yb
+ 00001A15  80 7D 10 00		              cmp Xb,00h
+ 00001A19  0F 84 000001D7	              je x_je_0
+ 00001A1F  F6 75 10		              div Xb
+ 00001A22  88 45 18		              MOV ceo_deo,al
+ 00001A25  8A C4		              mov al,ah
+ 00001A27  3C 01		              cmp al, 01h
+ 00001A29  0F 87 0000027E	              ja ceoinc2
+ 00001A2F  66| FF 4D 0C		              dalje2: dec Yp
+ 00001A33  FE 45 20		                      inc delta_y
+ 00001A36  8A 45 14		                      mov al, Yb
+ 00001A39  38 45 20		                      cmp delta_y,al
+ 00001A3C  0F 84 00000143	                      je provera_x
+ 00001A42  3A 4D 18		                      cmp cl, ceo_deo
+ 00001A45  0F 83 0000023F	                      jae pomeranjemanjeg2
+ 00001A4B  FE C1		             provera2:inc cl
+ 00001A4D  80 3D 0000000A R	                      cmp xgr,00h
+	   00
+ 00001A54  7E 27		                      jle preskok
+ 00001A56  8A 35 0000000A R	                      mov dh,xgr
+ 00001A5C  66| A1		                      mov ax,ygr
+	   0000000B R
+ 00001A62  80 C6 02		                      add dh,02h
+ 00001A65  8A D0		                      mov dl,al
+ 00001A67  B8 000000F9		                      mov eax,LightBlue + (white * 16)
+ 00001A6C  E8 00000000 E	 	                 call SetTextColor
+ 00001A71  E8 00000000 E	                      call Gotoxy
+ 00001A76  B0 B0		                      MOV al,0b0h
+ 00001A78  E8 00000000 E	                      call WriteChar
+ 00001A7D  8A 45 08		              preskok:mov al,Xp
+ 00001A80  A2 0000000A R	                      mov xgr,al
+ 00001A85  66| 8B 45 0C		                      mov ax,Yp
+ 00001A89  66| A3		                      mov ygr,ax
+	   0000000B R
+ 00001A8F  E8 0000022B		                      call udar
+ 00001A94  EB 99		                      jmp dalje2
+
+
+				              
+
+ 00001A96  33 C0		              xvecey:  xor eax,eax
+ 00001A98  33 C9		                        xor ecx,ecx
+ 00001A9A  41			                        inc ecx
+ 00001A9B  8A 45 10		                        mov al, Xb
+ 00001A9E  F6 75 14		                        div Yb
+ 00001AA1  88 45 18		                        MOV ceo_deo,al
+ 00001AA4  8A C4		                        mov al,ah
+ 00001AA6  3C 01		                        cmp al, 01h
+ 00001AA8  0F 87 000001F7	                        ja ceoinc1
+ 00001AAE  80 3D 0000000D R	                 dalje1:cmp x_bilo_0,01h
+	   01
+ 00001AB5  74 05		                        je rast
+ 00001AB7  FE 4D 08		                        dec Xp
+ 00001ABA  EB 03		                        jmp nastavi
+ 00001ABC  FE 45 08		                        rast: inc Xp
+ 00001ABF  FE 45 1C		                 nastavi:inc delta_x
+ 00001AC2  8A 45 10		                        mov al, Xb
+ 00001AC5  38 45 1C		                        cmp delta_x, al
+ 00001AC8  74 53		                        je provera_y
+ 00001ACA  3A 4D 18		                        cmp cl, ceo_deo
+ 00001ACD  0F 83 000001A9	                        jae pomeranjemanjeg1
+ 00001AD3  41			               provera1:inc ecx
+ 00001AD4  80 3D 0000000A R	                        cmp xgr,00h
+	   00
+ 00001ADB  7E 27		                        jle preskok1
+ 00001ADD  8A 35 0000000A R	                        mov dh,xgr
+ 00001AE3  66| A1		                        mov ax,ygr
+	   0000000B R
+ 00001AE9  8A D0		                        mov dl,al
+ 00001AEB  80 C6 02		                        add dh,02h
+ 00001AEE  B8 000000F9		                        mov eax,LightBlue + (white * 16)
+ 00001AF3  E8 00000000 E	 	                   call SetTextColor
+ 00001AF8  E8 00000000 E	                        call Gotoxy
+ 00001AFD  B0 B0		                        MOV al,0b0h
+ 00001AFF  E8 00000000 E	                        call WriteChar
+ 00001B04  8A 45 08		               preskok1:mov al,Xp
+ 00001B07  A2 0000000A R	                        mov xgr,al
+ 00001B0C  66| 8B 45 0C		                        mov ax,Yp
+ 00001B10  66| A3		                        mov ygr,ax
+	   0000000B R
+ 00001B16  E8 000001A4		                        call udar
+ 00001B1B  EB 91		                        jmp dalje1
+
+ 00001B1D  8A 45 14		                        provera_y: mov al, Yb
+ 00001B20  38 45 20		                                    cmp delta_y,al
+ 00001B23  0F 84 00000135	                                   je smanji_brzinu
+ 00001B29  66| FF 4D 0C		                                vrt:dec Yp
+ 00001B2D  FE 45 20		                                   INC delta_y
+ 00001B30  80 3D 0000000A R	                                   cmp xgr,00h
+	   00
+ 00001B37  7E 27		                                   jle preskok2
+ 00001B39  8A 35 0000000A R	                                   mov dh,xgr
+ 00001B3F  66| A1		                                   mov ax,ygr
+	   0000000B R
+ 00001B45  8A D0		                                   mov dl,al
+ 00001B47  80 C6 02		                                   add dh,02h
+ 00001B4A  B8 000000F9		                                   mov eax,LightBlue + (white * 16)
+ 00001B4F  E8 00000000 E	 	                              call SetTextColor
+ 00001B54  E8 00000000 E	                                   call Gotoxy
+ 00001B59  B0 B0		                                   MOV al,0b0h
+ 00001B5B  E8 00000000 E	                                   call WriteChar
+ 00001B60  8A 45 08		                           preskok2:mov al,Xp
+ 00001B63  A2 0000000A R	                                   mov xgr,al
+ 00001B68  66| 8B 45 0C		                                   mov ax,Yp
+ 00001B6C  66| A3		                                   mov ygr,ax
+	   0000000B R
+ 00001B72  E8 00000148		                                   call udar
+ 00001B77  8A 45 14		                                   mov al, Yb
+ 00001B7A  38 45 20		                                   cmp delta_y,al
+ 00001B7D  0F 84 000000DB	                                   je smanji_brzinu
+ 00001B83  EB A4		                                   jmp vrt
+
+ 00001B85  8A 45 10		                        provera_x:  mov al , Xb
+ 00001B88  38 45 1C		                                    cmp delta_x,al
+ 00001B8B  0F 84 000000CD	                                   je smanji_brzinu
+ 00001B91  80 3D 0000000D R	                                vrt1:cmp x_bilo_0,01h
+	   01
+ 00001B98  74 05		                                    je rast1
+ 00001B9A  FE 4D 08		                                    dec Xp
+ 00001B9D  EB 03		                                    jmp nastavi1
+ 00001B9F  FE 45 08		                                    rast1: inc Xp
+ 00001BA2  FE 45 1C		                           nastavi1: INC delta_x
+ 00001BA5  80 3D 0000000A R	                                   cmp xgr,00h
+	   00
+ 00001BAC  7E 27		                                   jle preskok3
+ 00001BAE  8A 35 0000000A R	                                   mov dh,xgr
+ 00001BB4  66| A1		                                   mov ax,ygr
+	   0000000B R
+ 00001BBA  8A D0		                                   mov dl,al
+ 00001BBC  80 C6 02		                                   add dh,02h
+ 00001BBF  B8 000000F9		                                   mov eax,LightBlue + (white * 16)
+ 00001BC4  E8 00000000 E	                              	 call SetTextColor
+ 00001BC9  E8 00000000 E	                                   call Gotoxy
+ 00001BCE  B0 B0		                                   MOV al,0b0h
+ 00001BD0  E8 00000000 E	                                   call WriteChar
+ 00001BD5  8A 45 08		                          preskok3:mov al,Xp
+ 00001BD8  A2 0000000A R	                                   mov xgr,al
+ 00001BDD  66| 8B 45 0C		                                   mov ax,Yp
+ 00001BE1  66| A3		                                   mov ygr,ax
+	   0000000B R
+ 00001BE7  E8 000000D3		                                   call udar
+ 00001BEC  8A 45 10		                                   mov al,Xb
+ 00001BEF  38 45 1C		                                   cmp delta_X,al
+ 00001BF2  74 6A		                                   je smanji_brzinu
+ 00001BF4  EB 9B		                                   jmp vrt1
+
+ 00001BF6  C6 05 0000000D R	                        x_je_0:mov x_bilo_0,01h
+	   01
+ 00001BFD  66| FF 4D 0C		                               dec Yp
+ 00001C01  FE 45 20		                               inc delta_y
+ 00001C04  8A 45 14		                               mov al, Yb
+ 00001C07  38 45 20		                               cmp delta_y,al
+ 00001C0A  75 04		                               jne skok_dalje
+ 00001C0C  66| FF 45 0C		                               inc Yp
+ 00001C10  38 45 20		                    skok_dalje:cmp delta_y,al
+ 00001C13  74 49		                               je smanji_brzinu
+ 00001C15  80 3D 0000000A R	                               cmp xgr,00h
+	   00
+ 00001C1C  7E 27		                               jle preskok4
+ 00001C1E  8A 35 0000000A R	                               mov dh,xgr
+ 00001C24  66| A1		                               mov ax,ygr
+	   0000000B R
+ 00001C2A  8A D0		                               mov dl,al
+ 00001C2C  80 C6 02		                               add dh,02h
+ 00001C2F  B8 000000F9		                               mov eax,LightBlue + (white * 16)
+ 00001C34  E8 00000000 E	 	                          call SetTextColor
+ 00001C39  E8 00000000 E	                               call Gotoxy
+ 00001C3E  B0 B0		                               MOV al,0b0h
+ 00001C40  E8 00000000 E	                               call WriteChar
+ 00001C45  8A 45 08		                      preskok4:mov al,Xp
+ 00001C48  A2 0000000A R	                               mov xgr,al
+ 00001C4D  66| 8B 45 0C		                               mov ax,Yp
+ 00001C51  66| A3		                               mov ygr,ax
+	   0000000B R
+ 00001C57  E8 00000063		                               call udar
+ 00001C5C  EB 98		                               jmp x_je_0
+
+ 00001C5E  80 3D 0000000D R	                        smanji_brzinu: cmp x_bilo_0,01h
+	   01
+ 00001C65  74 05		                                        je rast3
+ 00001C67  FE 4D 10		                                        dec Xb
+ 00001C6A  EB 03		                                        jmp nastavi3
+ 00001C6C  FE 45 10		                                  rast3:inc Xb
+ 00001C6F  C6 45 1C 00		                                nastavi3:mov delta_x,00h
+ 00001C73  C6 45 20 00		                                        mov delta_y,00h
+ 00001C77  E9 FFFFFD83		                                        jmp poc
+
+ 00001C7C  66| FF 4D 0C		                        pomeranjemanjeg1: dec Yp
+ 00001C80  FE 45 20		                                          inc delta_y
+ 00001C83  33 C9		                                         xor ecx,ecx
+ 00001C85  E9 FFFFFE49		                                         jmp provera1
+ 00001C8A  80 3D 0000000D R	                        pomeranjemanjeg2:cmp x_bilo_0,01h
+	   01
+ 00001C91  74 05		                                         je rast2
+ 00001C93  FE 4D 08		                                         dec Xp
+ 00001C96  EB 03		                                         jmp nastavi2
+ 00001C98  FE 45 08		                                         rast2: inc Xp
+ 00001C9B  FE 45 1C		                                 nastavi2:inc delta_x
+ 00001C9E  33 C9		                                         xor ecx,ecx
+ 00001CA0  E9 FFFFFDA6		                                         jmp provera2
+
+ 00001CA5  FE 45 18		                        ceoinc1: inc ceo_deo
+ 00001CA8  E9 FFFFFE01		                        jmp dalje1
+ 00001CAD  FE 45 18		                        ceoinc2: inc ceo_deo
+ 00001CB0  E9 FFFFFD7A		                        jmp dalje2
+				                      
+
+				                        
+				              
+
+
+				            
+
+ 00001CB5  E8 00000005		              kraj:call udar
+				              ret
+ 00001CBA  5A		   *	    pop    edx
+ 00001CBB  5E		   *	    pop    esi
+ 00001CBC  58		   *	    pop    eax
+ 00001CBD  C9		   *	    leave  
+ 00001CBE  C3		   *	    ret    00000h
+
+ 00001CBF			pucanj2 endp
+
+ 00001CBF			udar proc c uses eax esi edx
+ 00001CBF  50		   *	    push   eax
+ 00001CC0  56		   *	    push   esi
+ 00001CC1  52		   *	    push   edx
+ 00001CC2  80 3D 0000000A R	              cmp xgr,00h
+	   00
+ 00001CC9  0F 8E 00000151	              jle kraj
+ 00001CCF  A0 0000000A R	              mov al,xgr
+ 00001CD4  FE C8		              dec al
+ 00001CD6  A0 0000000A R	              mov al,xgr
+ 00001CDB  8A 15 00000000 R	              mov dl, donja_granica
+ 00001CE1  FE C2		              inc dl
+ 00001CE3  3A C2		              cmp al,dl
+ 00001CE5  0F 83 00000122	              jae sledeci 
+ 00001CEB  66| 83 3D		              cmp ygr,50h
+	   0000000B R 50
+ 00001CF3  0F 83 00000114	              jae sledeci
+ 00001CF9  66| A1		              mov ax, pom
+	   00000016 R
+ 00001CFF  F6 25 0000000A R	              mul xgr
+ 00001D05  66| 03 05		              add ax  ,ygr
+	   0000000B R
+ 00001D0C  66| A3		              mov zed, ax
+	   00000014 R
+ 00001D12  BE 00000018 R	              mov esi, OFFSET niz 
+ 00001D17  8B C6		              mov eax, esi
+ 00001D19  66| 03 05		              add ax, zed
+	   00000014 R
+ 00001D20  8B F0		              mov esi, eax
+ 00001D22  8A 06		              mov al, [esi]
+ 00001D24  3C 00		              cmp al, 00h
+ 00001D26  74 19		              je nije_udar
+ 00001D28  3C 02		              cmp al,02h
+ 00001D2A  0F 84 000000A2	              je smanji_zivot
+ 00001D30  3C 03		              cmp al,03h
+ 00001D32  0F 84 0000009A	              je smanji_zivot
+ 00001D38  3C 01		              cmp al,01h
+ 00001D3A  74 3A		              je udar_brda
+				              
+ 00001D3C  E9 000000DF		              jmp kraj
+
+ 00001D41  80 3D 0000000A R	              nije_udar:cmp xgr,00h
+	   00
+ 00001D48  7E 27		                        jle preskok
+ 00001D4A  8A 35 0000000A R	                        mov dh,xgr
+ 00001D50  66| A1		                        mov ax,ygr
+	   0000000B R
+ 00001D56  8A D0		                        mov dl,al
+ 00001D58  80 C6 02		                        add dh,02h
+ 00001D5B  E8 00000000 E	                        call Gotoxy
+ 00001D60  B8 000000F0		                        mov eax,black + (white * 16)
+ 00001D65  E8 00000000 E	         	              call SetTextColor
+ 00001D6A  B0 F8		                        MOV al,0F8h
+ 00001D6C  E8 00000000 E	                        call WriteChar 
+ 00001D71  E9 000000AA		                preskok:jmp kraj
+
+				                
+ 00001D76  66| A1		                udar_brda: mov ax,pom
+	   00000016 R
+ 00001D7C  F6 25 0000000A R	                         mul xgr
+ 00001D82  66| 03 05		                         add ax  ,ygr
+	   0000000B R
+ 00001D89  66| A3		                         mov zed, ax
+	   00000014 R
+ 00001D8F  BE 00000018 R	                         mov esi, OFFSET niz 
+ 00001D94  8B C6		                         mov eax, esi
+ 00001D96  66| 03 05		                         add ax, zed
+	   00000014 R
+ 00001D9D  8B F0		                         mov esi, eax
+ 00001D9F  B0 00		                         mov al,00h
+ 00001DA1  88 06		                         mov[esi],al
+ 00001DA3  E8 FFFFE607		                         call gravitacija_brisanje
+ 00001DA8  80 3D 000008E0 R	                         cmp potez,01h
+	   01
+ 00001DAF  75 0E		                         jne dalje
+ 00001DB1  E8 FFFFEAD2		                         call pozicija2
+ 00001DB6  C6 05 000008E0 R	                         mov potez,01h
+	   01
+ 00001DBD  EB 05		                         jmp dalje2
+ 00001DBF  E8 FFFFE960		                   dalje:call pozicija1
+
+
+ 00001DC4  80 3D 000008E0 R	                  dalje2:cmp potez, 01h
+	   01
+ 00001DCB  74 4E		                         je igra_drugi
+ 00001DCD  E8 0000005E		                         call igrac1
+
+
+ 00001DD2  80 3D 000008E0 R	              smanji_zivot: cmp potez, 01h
+	   01
+ 00001DD9  74 19		                            je z2
+ 00001DDB  FE 0D 000008D9 R	                            dec zivot1
+ 00001DE1  80 3D 000008D9 R	                            cmp zivot1,0h
+	   00
+ 00001DE8  75 05		                            jne produzi
+ 00001DEA  E8 00000491		                            call krajigre
+ 00001DEF  E8 0000003C		                      produzi: call igrac1
+ 00001DF4  FE 0D 000008DA R	             z2: dec zivot2
+ 00001DFA  80 3D 000008DA R	                 cmp zivot2,0h
+	   00
+ 00001E01  75 05		                 jne produzi1
+ 00001E03  E8 00000478		                 call krajigre
+ 00001E08  E8 0000024B		        produzi1:call igrac2
+ 00001E0D  80 3D 000008E0 R	             sledeci: cmp potez, 01h
+	   01
+ 00001E14  74 05		                      je igra_drugi
+ 00001E16  E8 00000015		                      call igrac1
+ 00001E1B  E8 00000238		       igra_drugi:  call igrac2
+				             
+ 00001E20  33 C0		kraj:xor eax,eax
+ 00001E22  A0 000008D8 R	mov al, kasnjenje
+ 00001E27  E8 00000000 E	call Delay
+				ret
+ 00001E2C  5A		   *	    pop    edx
+ 00001E2D  5E		   *	    pop    esi
+ 00001E2E  58		   *	    pop    eax
+ 00001E2F  C3		   *	    ret    00000h
+ 00001E30			udar endp
+ 00001E30			igrac1 proc c uses eax ecx ebx
+
+ 00001E30  50		   *	    push   eax
+ 00001E31  51		   *	    push   ecx
+ 00001E32  53		   *	    push   ebx
+ 00001E33  33 C9		     xor ecx,ecx
+ 00001E35  B2 28		     mov dl,28h
+ 00001E37  B6 01		     mov dh,01h
+ 00001E39  E8 00000000 E	     call gotoxy
+ 00001E3E  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 00001E43  E8 00000000 E	 	call SetTextColor
+ 00001E48  B0 31		     mov al,31h
+ 00001E4A  E8 00000000 E	     call writechar
+ 00001E4F  C6 05 000008E0 R	     mov potez, 01h
+	   01
+ 00001E56  B2 00		    poc: mov dl,00h
+ 00001E58  B6 00		     mov dh,00h
+ 00001E5A  E8 00000000 E	     call gotoxy
+ 00001E5F  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 00001E64  E8 00000000 E	 	call SetTextColor
+ 00001E69  BA 000008E1 R	     mov edx,OFFSET str1
+				   
+ 00001E6E  E8 00000000 E	     call WriteString
+				    
+ 00001E73  A0 000008DE R	     mov al, ugao_znak1
+ 00001E78  3C 00		     cmp al, 0h
+ 00001E7A  74 06		      je pisi_poz
+				    
+ 00001E7C  66| B8 002D		     mov ax, 02Dh
+ 00001E80  EB 02		     jmp pisi_kon
+ 00001E82  B0 00		 pisi_poz:  mov al , 00h
+
+ 00001E84  E8 00000000 E	   pisi_kon: call WriteChar 
+ 00001E89  66| A1		     mov ax,ugao1
+	   0000000E R
+ 00001E8F  B2 0A		     mov dl, 0Ah
+ 00001E91  F6 F2		     div dl
+ 00001E93  04 30		     add al, 030h
+ 00001E95  E8 00000000 E	     call WriteChar
+ 00001E9A  B0 30		     mov al, 030h
+ 00001E9C  E8 00000000 E	     call WriteChar ; završava se pisanje "UGAO TENKA"
+
+ 00001EA1  B2 00		     mov dl,00h
+ 00001EA3  B6 01		     mov dh,01h
+ 00001EA5  E8 00000000 E	     call Gotoxy
+ 00001EAA  BA 000008FA R	     mov edx,OFFSET str3
+ 00001EAF  E8 00000000 E	     call WriteString
+
+ 00001EB4  33 DB		     xor ebx,ebx
+ 00001EB6  B2 00		     mov dl,00h
+ 00001EB8  B6 01		     mov dh,01h
+ 00001EBA  E8 00000000 E	     call Gotoxy
+ 00001EBF  B8 000000F4		     mov eax,red + (white * 16)
+ 00001EC4  E8 00000000 E	 	call SetTextColor
+ 00001EC9  B0 03		     mov al,03h
+ 00001ECB  8A 1D 000008D9 R	     mov bl,zivot1
+ 00001ED1  80 FB 00		opet:cmp bl,00
+ 00001ED4  74 10		     je drugacije
+ 00001ED6  E8 00000000 E	     call WriteChar
+ 00001EDB  FE C2		     inc dl
+ 00001EDD  E8 00000000 E	     call Gotoxy
+ 00001EE2  FE CB		     dec bl
+ 00001EE4  EB EB		     jmp opet
+ 00001EE6  E8 00000000 E	     drugacije:call ReadChar
+ 00001EEB  80 FC 4D		     cmp ah, 4Dh
+ 00001EEE  74 44		     je desno
+ 00001EF0  80 FC 4B		     cmp ah, 4Bh
+ 00001EF3  74 27		     je levo
+ 00001EF5  3C 20		     cmp al, 20h
+ 00001EF7  74 53		     je puc
+ 00001EF9  80 FC 50		     cmp ah, 50h
+ 00001EFC  0F 84 000000B6	     je dole
+ 00001F02  80 FC 48		     cmp ah, 48h
+ 00001F05  74 54		     je gore
+ 00001F07  3C 2B		     cmp al, 2bh
+ 00001F09  0F 84 000000F9	     je snagagore
+ 00001F0F  3C 2D		     cmp al, 2dh
+ 00001F11  0F 84 00000117	     je snagadole
+ 00001F17  E9 FFFFFF3A		     jmp poc
+ 00001F1C  66| A1		     levo:mov ax,yt1
+	   00000005 R
+ 00001F22  3C 00		     cmp al,0h
+ 00001F24  0F 84 FFFFFF2C	     je poc
+ 00001F2A  E8 FFFFEDB6		     call T1levo 
+ 00001F2F  E9 FFFFFF22		     jmp poc
+ 00001F34  66| A1		     desno:mov ax,yt1
+	   00000005 R
+ 00001F3A  3C 79		     cmp al,79h
+ 00001F3C  0F 84 FFFFFF14	     je poc
+ 00001F42  E8 FFFFEAAC		     call T1desno
+ 00001F47  E9 FFFFFF0A		     jmp poc
+ 00001F4C  E8 FFFFF65A		     puc: call pucanj1 
+ 00001F51  E8 00000102		     call igrac2
+ 00001F56  E9 FFFFFEFB		     jmp poc
+ 00001F5B  66| 83 3D		     gore: cmp ugao1,00h
+	   0000000E R 00
+ 00001F63  74 31		           je obrni
+ 00001F65  80 3D 000008DE R	           cmp ugao_znak1,0
+	   00
+ 00001F6C  74 28		           je obrni
+ 00001F6E  66| A1		           mov ax,ugao1
+	   0000000E R
+ 00001F74  2C 0A		           sub al,0Ah
+ 00001F76  66| A3		           mov ugao1,ax
+	   0000000E R
+ 00001F7C  66| 83 3D		           cmp ugao1,00h
+	   0000000E R 00
+ 00001F84  0F 85 FFFFFECC	           jne poc
+ 00001F8A  C6 05 000008DE R	           mov ugao_znak1,00h
+	   00
+ 00001F91  E9 FFFFFEC0		           jmp poc
+ 00001F96  66| A1		     obrni:mov ax,ugao1
+	   0000000E R
+ 00001F9C  3C 50		           cmp al,50h
+ 00001F9E  0F 84 FFFFFEB2	           je poc
+ 00001FA4  04 0A		           add al,0Ah
+ 00001FA6  66| A3		           mov ugao1,ax
+	   0000000E R
+ 00001FAC  C6 05 000008DE R	           mov ugao_znak1,00h
+	   00
+ 00001FB3  E9 FFFFFE9E		           jmp poc
+ 00001FB8  66| 83 3D		     dole: cmp ugao1,00
+	   0000000E R 00
+ 00001FC0  75 22		           jne obrni1
+ 00001FC2  66| A1		    obrni2:mov ax,ugao1
+	   0000000E R
+ 00001FC8  3C 50		           cmp al,50h
+ 00001FCA  0F 84 FFFFFE86	           je poc
+ 00001FD0  04 0A		           add al,0Ah
+ 00001FD2  66| A3		           mov ugao1,ax
+	   0000000E R
+ 00001FD8  C6 05 000008DE R	           mov ugao_znak1,01h
+	   01
+ 00001FDF  E9 FFFFFE72		           jmp poc
+ 00001FE4  80 3D 000008DE R	    obrni1:cmp ugao_znak1,0
+	   00
+ 00001FEB  75 D5		           jne obrni2
+ 00001FED  66| A1		           mov ax,ugao1
+	   0000000E R
+ 00001FF3  3C 00		           cmp al,0h
+ 00001FF5  0F 84 FFFFFE5B	           je poc
+ 00001FFB  2C 0A		           sub al,0Ah
+ 00001FFD  66| A3		           mov ugao1,ax
+	   0000000E R
+ 00002003  E9 FFFFFE4E		           jmp poc
+
+ 00002008  C6 05 000008DB R	    snagagore:mov snaga1,01h
+	   01
+ 0000200F  B2 0B		              mov dl,0bh
+ 00002011  B6 01		              mov dh,01h
+ 00002013  E8 00000000 E	              call gotoxy
+ 00002018  B8 000000F9		              mov eax,lightblue + (white * 16)
+ 0000201D  E8 00000000 E	         	    call SetTextColor
+ 00002022  B0 AF		              mov al,0afh
+ 00002024  E8 00000000 E	              call writechar
+ 00002029  E9 FFFFFE28		              jmp poc
+ 0000202E  C6 05 000008DB R	    snagadole:mov snaga1,00h
+	   00
+ 00002035  B2 0B		              mov dl,0bh
+ 00002037  B6 01		              mov dh,01h
+ 00002039  E8 00000000 E	              call gotoxy
+ 0000203E  B8 000000F9		              mov eax,lightblue + (white * 16)
+ 00002043  E8 00000000 E	         	    call SetTextColor
+ 00002048  B0 00		              mov al,00h
+ 0000204A  E8 00000000 E	              call writechar
+ 0000204F  E9 FFFFFE02		              jmp poc
+				     ret
+ 00002054  5B		   *	    pop    ebx
+ 00002055  59		   *	    pop    ecx
+ 00002056  58		   *	    pop    eax
+ 00002057  C3		   *	    ret    00000h
+ 00002058			igrac1 endp
+ 00002058			igrac2 proc c uses eax ecx ebx
+				    
+ 00002058  50		   *	    push   eax
+ 00002059  51		   *	    push   ecx
+ 0000205A  53		   *	    push   ebx
+ 0000205B  33 C9		     xor ecx,ecx
+ 0000205D  B2 28		     mov dl,28h
+ 0000205F  B6 01		     mov dh,01h
+ 00002061  E8 00000000 E	     call gotoxy
+ 00002066  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 0000206B  E8 00000000 E	 	call SetTextColor
+ 00002070  B0 32		     mov al,32h
+ 00002072  E8 00000000 E	     call writechar
+ 00002077  C6 05 000008E0 R	     mov potez, 02h
+	   02
+ 0000207E  B2 42		    poc: mov dl,42h
+ 00002080  B6 00		     mov dh,00h
+ 00002082  E8 00000000 E	     call gotoxy
+ 00002087  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 0000208C  E8 00000000 E	 	call SetTextColor
+ 00002091  BA 000008ED R	     mov edx,OFFSET str2
+				   
+ 00002096  E8 00000000 E	     call WriteString
+				    
+ 0000209B  A0 000008DF R	     mov al, ugao_znak2
+ 000020A0  3C 00		     cmp al, 0h
+ 000020A2  74 06		      je pisi_poz
+				    
+ 000020A4  66| B8 002D		     mov ax, 02Dh
+ 000020A8  EB 02		     jmp pisi_kon
+ 000020AA  B0 00		 pisi_poz:  mov al , 00h
+
+ 000020AC  E8 00000000 E	   pisi_kon: call WriteChar
+ 000020B1  66| A1		     mov ax,ugao2
+	   00000010 R
+ 000020B7  B2 0A		     mov dl, 0Ah
+ 000020B9  F6 F2		     div dl
+ 000020BB  04 30		     add al, 030h
+ 000020BD  E8 00000000 E	     call WriteChar
+ 000020C2  B0 30		     mov al, 030h
+ 000020C4  E8 00000000 E	     call WriteChar
+ 000020C9  B2 46		     mov dl,46h
+ 000020CB  B6 01		     mov dh,01h
+ 000020CD  E8 00000000 E	     call Gotoxy
+ 000020D2  BA 000008FA R	     mov edx,OFFSET str3
+ 000020D7  E8 00000000 E	     call WriteString
+ 000020DC  33 DB		     xor ebx,ebx
+ 000020DE  B2 4F		     mov dl,4fh
+ 000020E0  B6 01		     mov dh,01h
+ 000020E2  E8 00000000 E	     call Gotoxy
+ 000020E7  B8 000000F4		     mov eax,red + (white * 16)
+ 000020EC  E8 00000000 E	 	call SetTextColor
+ 000020F1  B0 03		     mov al,03h
+ 000020F3  8A 1D 000008DA R	     mov bl,zivot2
+ 000020F9  80 FB 00		opet:cmp bl,00
+ 000020FC  74 10		     je produzi
+ 000020FE  E8 00000000 E	     call WriteChar
+ 00002103  FE CA		     dec dl
+ 00002105  E8 00000000 E	     call Gotoxy
+ 0000210A  FE CB		     dec bl
+ 0000210C  EB EB		     jmp opet
+				     
+ 0000210E  E8 00000000 E	produzi:call ReadChar
+ 00002113  80 FC 4D		     cmp ah, 4Dh
+ 00002116  74 44		     je desno
+ 00002118  80 FC 4B		     cmp ah, 4Bh
+ 0000211B  74 27		     je levo
+ 0000211D  3C 20		     cmp al, 20h
+ 0000211F  74 53		     je puc
+ 00002121  80 FC 50		     cmp ah, 50h
+ 00002124  0F 84 000000B6	     je dole
+ 0000212A  80 FC 48		     cmp ah, 48h
+ 0000212D  74 54		     je gore
+ 0000212F  3C 2B		     cmp al, 2bh
+ 00002131  0F 84 000000F9	     je snagagore
+ 00002137  3C 2D		     cmp al, 2dh
+ 00002139  0F 84 00000117	     je snagadole
+ 0000213F  E9 FFFFFF3A		     jmp poc
+ 00002144  66| A1		     levo:mov ax,yt2
+	   00000008 R
+ 0000214A  3C 00		     cmp al,0h
+ 0000214C  0F 84 FFFFFF2C	     je poc
+ 00002152  E8 FFFFF16A		     call T2levo
+ 00002157  E9 FFFFFF22		     jmp poc
+ 0000215C  66| A1		     desno:mov ax,yt2
+	   00000008 R
+ 00002162  3C 4D		     cmp al,4dh
+ 00002164  0F 84 FFFFFF14	     je poc
+ 0000216A  E8 FFFFEE60		     call T2desno
+ 0000216F  E9 FFFFFF0A		     jmp poc
+ 00002174  E8 FFFFF7BD		     puc:call pucanj2
+ 00002179  E8 FFFFFCB2		     call igrac1
+
+ 0000217E  E9 FFFFFEFB		     jmp poc
+ 00002183  66| 83 3D		     gore: cmp ugao2,00h
+	   00000010 R 00
+ 0000218B  74 31		           je obrni
+ 0000218D  80 3D 000008DF R	           cmp ugao_znak2,0
+	   00
+ 00002194  74 28		           je obrni
+ 00002196  66| A1		           mov ax,ugao2
+	   00000010 R
+ 0000219C  2C 0A		           sub al,0Ah
+ 0000219E  66| A3		           mov ugao2,ax
+	   00000010 R
+ 000021A4  66| 83 3D		           cmp ugao2,00h
+	   00000010 R 00
+ 000021AC  0F 85 FFFFFECC	           jne poc
+ 000021B2  C6 05 000008DF R	           mov ugao_znak2,00h
+	   00
+ 000021B9  E9 FFFFFEC0		           jmp poc
+ 000021BE  66| A1		     obrni:mov ax,ugao2
+	   00000010 R
+ 000021C4  3C 50		           cmp al,50h
+ 000021C6  0F 84 FFFFFEB2	           je poc
+ 000021CC  04 0A		           add al,0Ah
+ 000021CE  66| A3		           mov ugao2,ax
+	   00000010 R
+ 000021D4  C6 05 000008DF R	           mov ugao_znak2,00h
+	   00
+ 000021DB  E9 FFFFFE9E		           jmp poc
+ 000021E0  66| 83 3D		     dole: cmp ugao2,00
+	   00000010 R 00
+ 000021E8  75 22		           jne obrni1
+ 000021EA  66| A1		    obrni2:mov ax,ugao2
+	   00000010 R
+ 000021F0  3C 50		           cmp al,50h
+ 000021F2  0F 84 FFFFFE86	           je poc
+ 000021F8  04 0A		           add al,0Ah
+ 000021FA  66| A3		           mov ugao2,ax
+	   00000010 R
+ 00002200  C6 05 000008DF R	           mov ugao_znak2,01h
+	   01
+ 00002207  E9 FFFFFE72		           jmp poc
+ 0000220C  80 3D 000008DF R	    obrni1:cmp ugao_znak2,0
+	   00
+ 00002213  75 D5		           jne obrni2
+ 00002215  66| A1		           mov ax,ugao2
+	   00000010 R
+ 0000221B  3C 00		           cmp al,0h
+ 0000221D  0F 84 FFFFFE5B	           je poc
+ 00002223  2C 0A		           sub al,0Ah
+ 00002225  66| A3		           mov ugao2,ax
+	   00000010 R
+ 0000222B  E9 FFFFFE4E		           jmp poc
+
+ 00002230  C6 05 000008DC R	    snagagore:mov snaga2,01h
+	   01
+ 00002237  B2 44		              mov dl,44h
+ 00002239  B6 01		              mov dh,01h
+ 0000223B  E8 00000000 E	              call gotoxy
+ 00002240  B8 000000F9		              mov eax,lightblue + (white * 16)
+ 00002245  E8 00000000 E	         	    call SetTextColor
+ 0000224A  B0 AE		              mov al,0aeh
+ 0000224C  E8 00000000 E	              call writechar
+ 00002251  E9 FFFFFE28		              jmp poc
+ 00002256  C6 05 000008DC R	    snagadole:mov snaga2,00h
+	   00
+ 0000225D  B2 44		              mov dl,44h
+ 0000225F  B6 01		              mov dh,01h
+ 00002261  E8 00000000 E	              call gotoxy
+ 00002266  B8 000000F9		              mov eax,lightblue + (white * 16)
+ 0000226B  E8 00000000 E	         	    call SetTextColor
+ 00002270  B0 00		              mov al,00h
+ 00002272  E8 00000000 E	              call writechar
+ 00002277  E9 FFFFFE02		              jmp poc
+
+
+
+				     ret
+ 0000227C  5B		   *	    pop    ebx
+ 0000227D  59		   *	    pop    ecx
+ 0000227E  58		   *	    pop    eax
+ 0000227F  C3		   *	    ret    00000h
+ 00002280			igrac2 endp
+ 00002280			krajigre proc c uses eax
+ 00002280  50		   *	    push   eax
+ 00002281  E8 00000000 E	call clrscr
+ 00002286  B2 00		mov dl,00h
+ 00002288  B6 00		mov dh,00h
+ 0000228A  E8 00000000 E	call gotoxy
+ 0000228F  80 3D 000008E0 R	cmp potez,01h
+	   01
+ 00002296  75 0C		jne preskok
+ 00002298  BA 00000905 R	mov edx,OFFSET str4
+ 0000229D  E8 00000000 E	call writestring
+ 000022A2  EB 0A		jmp dalje
+ 000022A4  BA 00000918 R	preskok:mov edx,OFFSET str5
+ 000022A9  E8 00000000 E	call writestring
+ 000022AE  33 C0		dalje:xor eax,eax
+ 000022B0  66| B8 0FFF		mov ax,0fffh
+ 000022B4  E8 00000000 E	call delay
+ 000022B9  E8 00000002		call main
+				ret
+ 000022BE  58		   *	    pop    eax
+ 000022BF  C3		   *	    ret    00000h
+ 000022C0			krajigre endp
+ 000022C0			main proc
+ 000022C0  B8 000000F9		 mov eax,LightBlue + (white * 16)
+ 000022C5  E8 00000000 E	 call SetTextColor
+ 000022CA  C6 05 00000004 R	 mov xt1, 1h
+	   01
+ 000022D1  66| C7 05		 mov yt1, 0ah
+	   00000005 R
+	   000A
+ 000022DA  C6 05 00000007 R	 mov xt2, 1h
+	   01
+ 000022E1  66| C7 05		 mov yt2, 46h
+	   00000008 R
+	   0046
+ 000022EA  C6 05 0000000A R	 mov xgr, 0h
+	   00
+ 000022F1  66| C7 05		 mov ygr, 0h
+	   0000000B R
+	   0000
+ 000022FA  C6 05 0000000D R	 mov x_bilo_0, 0h
+	   00
+ 00002301  66| C7 05		 mov ugao1, 0h
+	   0000000E R
+	   0000
+ 0000230A  66| C7 05		 mov ugao2, 0h
+	   00000010 R
+	   0000
+ 00002313  C6 05 000008D9 R	 mov zivot1, 0Ah
+	   0A
+ 0000231A  C6 05 000008DA R	 mov zivot2, 0Ah
+	   0A
+ 00002321  C6 05 000008DB R	 mov snaga1, 0h
+	   00
+ 00002328  C6 05 000008DC R	 mov snaga2, 0h
+	   00
+ 0000232F  C6 05 000008E0 R	 mov potez,01h
+	   01
+ 00002336  E8 FFFFDCFC		 call ucitavanje
+				 
+
+
+
+
+ 0000233B  E8 00000000 E	biranje: call Clrscr
+ 00002340  B2 00		        mov dl,00h
+ 00002342  B6 00		        mov dh,00h
+ 00002344  E8 00000000 E	        call gotoxy
+ 00002349  BA 0000093E R	        mov edx, OFFSET str7
+ 0000234E  E8 00000000 E	        call writestring
+ 00002353  BA 00000960 R	        mov edx, OFFSET str8
+ 00002358  E8 00000000 E	        call writestring
+ 0000235D  E8 00000000 E	        call ReadChar
+ 00002362  3C 70		        cmp al, 70h
+ 00002364  74 0E		        je pra
+ 00002366  3C 69		        cmp al, 69h
+ 00002368  74 13		        je igr
+ 0000236A  3C 1B		        cmp al, 1Bh
+ 0000236C  0F 84 00000112	        je kraj
+ 00002372  EB C7		        jmp biranje
+ 00002374  E8 FFFFE211		        pra: call pravi
+ 00002379  33 C0		        xor eax, eax
+ 0000237B  EB BE		        jmp biranje
+
+				 
+				 
+ 0000237D  C6 05 000008DD R	 igr:mov igra,01h
+	   01
+ 00002384  E8 00000000 E	     call clrscr
+ 00002389  B2 00		     mov dl,00h
+ 0000238B  B6 00		     mov dh,00h
+ 0000238D  E8 00000000 E	     call gotoxy
+ 00002392  BA 000009BF R	     mov edx, OFFSET str9
+ 00002397  E8 00000000 E	     call writestring
+ 0000239C  BA 00000AC7 R	     mov edx, OFFSET str10
+ 000023A1  E8 00000000 E	     call writestring
+ 000023A6  BA 00000BD4 R	     mov edx, OFFSET str11
+ 000023AB  E8 00000000 E	     call writestring
+ 000023B0  BA 00000C97 R	     mov edx, OFFSET str12
+ 000023B5  E8 00000000 E	     call writestring
+ 000023BA  E8 00000000 E	     call readchar
+ 000023BF  E8 FFFFDC73		     call ucitavanje
+ 000023C4  E8 FFFFDCB3		     call CRTANJE
+ 000023C9  E8 FFFFE356		     call pozicija1
+ 000023CE  E8 FFFFE4B5		     call pozicija2
+				     
+ 000023D3  C6 05 000008E0 R	     mov potez, 01h
+	   01
+ 000023DA  B2 42		     mov dl,42h
+ 000023DC  B6 00		     mov dh,00h
+ 000023DE  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 000023E3  E8 00000000 E	     call SetTextColor
+ 000023E8  E8 00000000 E	     call gotoxy
+ 000023ED  BA 000008ED R	     mov edx,OFFSET str2
+ 000023F2  E8 00000000 E	     call WriteString
+ 000023F7  B0 20		     mov al,20h
+ 000023F9  E8 00000000 E	     call Writechar
+ 000023FE  B0 30		     mov al,30h
+ 00002400  E8 00000000 E	     call Writechar
+ 00002405  E8 00000000 E	     call Writechar
+ 0000240A  B2 46		     mov dl,46h
+ 0000240C  B6 01		     mov dh,01h
+ 0000240E  E8 00000000 E	     call gotoxy
+ 00002413  B8 000000F4		     mov eax,red + (white * 16)
+ 00002418  E8 00000000 E	 	call SetTextColor
+ 0000241D  33 C9		     xor ecx,ecx
+ 0000241F  B1 0A		     mov cl,0ah
+ 00002421  B0 03		     mov al,03h
+ 00002423  80 F9 00		opet:cmp cl,00
+ 00002426  74 09		     je preskok
+ 00002428  E8 00000000 E	     call writeChar
+ 0000242D  FE C9		     dec cl
+ 0000242F  EB F2		     jmp opet
+ 00002431  B2 00		preskok:mov dl,00h
+ 00002433  B6 00		     mov dh,00h
+ 00002435  E8 00000000 E	     call gotoxy
+ 0000243A  B8 000000F9		     mov eax,lightblue + (white * 16)
+ 0000243F  E8 00000000 E	 	call SetTextColor
+ 00002444  BA 000008E1 R	     mov edx,OFFSET str1
+ 00002449  E8 00000000 E	     call WriteString
+ 0000244E  B2 00		     mov dl,00h
+ 00002450  B6 01		     mov dh,01h
+ 00002452  E8 00000000 E	     call gotoxy
+ 00002457  33 C9		     xor ecx,ecx
+ 00002459  B8 000000F4		     mov eax,red + (white * 16)
+ 0000245E  E8 00000000 E	 	call SetTextColor
+ 00002463  B1 0A		     mov cl,0ah
+ 00002465  B0 03		     mov al,03h
+ 00002467  80 F9 00		opet1:cmp cl,00
+ 0000246A  74 09		     je preskok1
+ 0000246C  E8 00000000 E	     call writeChar
+ 00002471  FE C9		     dec cl
+ 00002473  EB F2		     jmp opet1
+ 00002475  B8 000000F9		preskok1:mov eax,lightblue + (white * 16)
+ 0000247A  E8 00000000 E	 	call SetTextColor
+
+ 0000247F  E8 FFFFF9AC		     call igrac1
+
+
+ 00002484			kraj:invoke ExitProcess,0
+ 00002484  6A 00	   *	    push   +000000000h
+ 00002486  E8 00000000 E   *	    call   ExitProcess
+
+ 0000248B			main endp    
+				end main
+Microsoft (R) Macro Assembler Version 14.10.25019.0	    08/19/17 15:00:36
+PocketTanks.asm						     Symbols 2 - 1
+
+
+
+
+Macros:
+
+                N a m e                 Type
+
+IsDefined  . . . . . . . . . . .	Func
+Startup  . . . . . . . . . . . .	Proc
+mDumpMem . . . . . . . . . . . .	Proc
+mDump  . . . . . . . . . . . . .	Proc
+mGotoxy  . . . . . . . . . . . .	Proc
+mReadString  . . . . . . . . . .	Proc
+mShowRegister  . . . . . . . . .	Proc
+mShow  . . . . . . . . . . . . .	Proc
+mWriteLn . . . . . . . . . . . .	Proc
+mWriteSpace  . . . . . . . . . .	Proc
+mWriteString . . . . . . . . . .	Proc
+mWrite . . . . . . . . . . . . .	Proc
+
+
+Structures and Unions:
+
+                N a m e                  Size
+                                         Offset      Type
+
+CONSOLE_CURSOR_INFO  . . . . . .	 00000008
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  bVisible . . . . . . . . . . .	 00000004	 DWord
+CONSOLE_SCREEN_BUFFER_INFO . . .	 00000016
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwCursorPosition . . . . . . .	 00000004	 DWord
+  wAttributes  . . . . . . . . .	 00000008	 Word
+  srWindow . . . . . . . . . . .	 0000000A	 QWord
+  dwMaximumWindowSize  . . . . .	 00000012	 DWord
+COORD  . . . . . . . . . . . . .	 00000004
+  X  . . . . . . . . . . . . . .	 00000000	 Word
+  Y  . . . . . . . . . . . . . .	 00000002	 Word
+FILETIME . . . . . . . . . . . .	 00000008
+  loDateTime . . . . . . . . . .	 00000000	 DWord
+  hiDateTime . . . . . . . . . .	 00000004	 DWord
+FOCUS_EVENT_RECORD . . . . . . .	 00000004
+  bSetFocus  . . . . . . . . . .	 00000000	 DWord
+FPU_ENVIRON  . . . . . . . . . .	 0000001C
+  controlWord  . . . . . . . . .	 00000000	 Word
+  statusWord . . . . . . . . . .	 00000004	 Word
+  tagWord  . . . . . . . . . . .	 00000008	 Word
+  instrPointerOffset . . . . . .	 0000000C	 DWord
+  instrPointerSelector . . . . .	 00000010	 DWord
+  operandPointerOffset . . . . .	 00000014	 DWord
+  operandPointerSelector . . . .	 00000018	 Word
+INPUT_RECORD . . . . . . . . . .	 00000014
+  EventType  . . . . . . . . . .	 00000000	 Word
+  Event  . . . . . . . . . . . .	 00000004	 XmmWord
+  bKeyDown . . . . . . . . . . .	 00000000	 DWord
+  wRepeatCount . . . . . . . . .	 00000004	 Word
+  wVirtualKeyCode  . . . . . . .	 00000006	 Word
+  wVirtualScanCode . . . . . . .	 00000008	 Word
+  uChar  . . . . . . . . . . . .	 0000000A	 Word
+  UnicodeChar  . . . . . . . . .	 00000000	 Word
+  AsciiChar  . . . . . . . . . .	 00000000	 Byte
+  dwControlKeyState  . . . . . .	 0000000C	 DWord
+  dwMousePosition  . . . . . . .	 00000000	 DWord
+  dwButtonState  . . . . . . . .	 00000004	 DWord
+  dwMouseControlKeyState . . . .	 00000008	 DWord
+  dwEventFlags . . . . . . . . .	 0000000C	 DWord
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwCommandId  . . . . . . . . .	 00000000	 DWord
+  bSetFocus  . . . . . . . . . .	 00000000	 DWord
+KEY_EVENT_RECORD . . . . . . . .	 00000010
+  bKeyDown . . . . . . . . . . .	 00000000	 DWord
+  wRepeatCount . . . . . . . . .	 00000004	 Word
+  wVirtualKeyCode  . . . . . . .	 00000006	 Word
+  wVirtualScanCode . . . . . . .	 00000008	 Word
+  uChar  . . . . . . . . . . . .	 0000000A	 Word
+  UnicodeChar  . . . . . . . . .	 00000000	 Word
+  AsciiChar  . . . . . . . . . .	 00000000	 Byte
+  dwControlKeyState  . . . . . .	 0000000C	 DWord
+MENU_EVENT_RECORD  . . . . . . .	 00000004
+  dwCommandId  . . . . . . . . .	 00000000	 DWord
+MOUSE_EVENT_RECORD . . . . . . .	 00000010
+  dwMousePosition  . . . . . . .	 00000000	 DWord
+  dwButtonState  . . . . . . . .	 00000004	 DWord
+  dwMouseControlKeyState . . . .	 00000008	 DWord
+  dwEventFlags . . . . . . . . .	 0000000C	 DWord
+SMALL_RECT . . . . . . . . . . .	 00000008
+  Left . . . . . . . . . . . . .	 00000000	 Word
+  Top  . . . . . . . . . . . . .	 00000002	 Word
+  Right  . . . . . . . . . . . .	 00000004	 Word
+  Bottom . . . . . . . . . . . .	 00000006	 Word
+SYSTEMTIME . . . . . . . . . . .	 00000010
+  wYear  . . . . . . . . . . . .	 00000000	 Word
+  wMonth . . . . . . . . . . . .	 00000002	 Word
+  wDayOfWeek . . . . . . . . . .	 00000004	 Word
+  wDay . . . . . . . . . . . . .	 00000006	 Word
+  wHour  . . . . . . . . . . . .	 00000008	 Word
+  wMinute  . . . . . . . . . . .	 0000000A	 Word
+  wSecond  . . . . . . . . . . .	 0000000C	 Word
+  wMilliseconds  . . . . . . . .	 0000000E	 Word
+WINDOW_BUFFER_SIZE_RECORD  . . .	 00000004
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 000023E8 Para	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000E7A Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000248B Para	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+CRTANJE  . . . . . . . . . . . .	P Near	 0000007C _TEXT	Length= 000002B3 Public C
+  Xc . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yc . . . . . . . . . . . . . .	Byte	 bp + 0000000C
+  Yc1  . . . . . . . . . . . . .	Word	 bp + 00000010
+  pisi_poz . . . . . . . . . . .	L Near	 000000E8 _TEXT	
+  pisi_kon . . . . . . . . . . .	L Near	 000000EA _TEXT	
+  opet . . . . . . . . . . . . .	L Near	 00000137 _TEXT	
+  produzi  . . . . . . . . . . .	L Near	 0000014C _TEXT	
+  pisi_poz1  . . . . . . . . . .	L Near	 00000178 _TEXT	
+  pisi_kon1  . . . . . . . . . .	L Near	 0000017A _TEXT	
+  opet1  . . . . . . . . . . . .	L Near	 000001C7 _TEXT	
+  produzi1 . . . . . . . . . . .	L Near	 000001DC _TEXT	
+  dalje  . . . . . . . . . . . .	L Near	 000001FF _TEXT	
+  produzi2 . . . . . . . . . . .	L Near	 00000222 _TEXT	
+  znakp  . . . . . . . . . . . .	L Near	 0000026E _TEXT	
+  znak0  . . . . . . . . . . . .	L Near	 00000296 _TEXT	
+  znak1  . . . . . . . . . . . .	L Near	 000002AE _TEXT	
+  znak2  . . . . . . . . . . . .	L Near	 000002C6 _TEXT	
+  nista  . . . . . . . . . . . .	L Near	 000002DE _TEXT	
+  crtprav  . . . . . . . . . . .	L Near	 000002F9 _TEXT	
+  znak0p . . . . . . . . . . . .	L Near	 00000304 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00000322 _TEXT	
+CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleScreenBufferInfo . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetDateTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetFileTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetKeyState  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetLastError . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetMaxXY . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetMseconds  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetNumberOfConsoleInputEvents  .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetProcessHeap . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MsgBox . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadChar . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadConsoleA . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadDec  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFile . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFloat  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFromFile . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadHex  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleScreenBufferSize . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleTextAttribute  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleTitleA . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleWindowInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetFilePointer . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ShowFPUStack . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Sleep  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+StrLength  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_compare  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_copy . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+T1desno  . . . . . . . . . . . .	P Near	 000009F3 _TEXT	Length= 000002F2 Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  gore . . . . . . . . . . . . .	L Near	 00000AE2 _TEXT	
+  desno  . . . . . . . . . . . .	L Near	 00000B9F _TEXT	
+  dole . . . . . . . . . . . . .	L Near	 00000C3E _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00000CE1 _TEXT	
+T1levo . . . . . . . . . . . . .	P Near	 00000CE5 _TEXT	Length= 000002EA Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  gore . . . . . . . . . . . . .	L Near	 00000DCC _TEXT	
+  levo . . . . . . . . . . . . .	L Near	 00000E89 _TEXT	
+  dole . . . . . . . . . . . . .	L Near	 00000F28 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00000FCB _TEXT	
+T2desno  . . . . . . . . . . . .	P Near	 00000FCF _TEXT	Length= 000002F2 Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  gore . . . . . . . . . . . . .	L Near	 000010BE _TEXT	
+  desno  . . . . . . . . . . . .	L Near	 0000117B _TEXT	
+  dole . . . . . . . . . . . . .	L Near	 0000121A _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 000012BD _TEXT	
+T2levo . . . . . . . . . . . . .	P Near	 000012C1 _TEXT	Length= 000002EA Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  gore . . . . . . . . . . . . .	L Near	 000013A8 _TEXT	
+  levo . . . . . . . . . . . . .	L Near	 00001465 _TEXT	
+  dole . . . . . . . . . . . . .	L Near	 00001504 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 000015A7 _TEXT	
+WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteChar  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleA  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleOutputAttribute  . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleOutputCharacterA . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteDec . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteFloat . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteHexB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteHex . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteInt . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteStackFrameName  . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+brisitenk  . . . . . . . . . . .	P Near	 00000470 _TEXT	Length= 0000008C Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  uzmiprvi . . . . . . . . . . .	L Near	 00000492 _TEXT	
+  obrada . . . . . . . . . . . .	L Near	 000004A4 _TEXT	
+gravitacija_brisanje . . . . . .	P Near	 000003AF _TEXT	Length= 000000C1 Public C
+  Xg2  . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yg2  . . . . . . . . . . . . .	Word	 bp + 0000000C
+  crtpov . . . . . . . . . . . .	L Near	 000003F1 _TEXT	
+  poc  . . . . . . . . . . . . .	L Near	 000003F1 _TEXT	
+  pad  . . . . . . . . . . . . .	L Near	 00000423 _TEXT	
+  crt  . . . . . . . . . . . . .	L Near	 00000453 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00000467 _TEXT	
+gravitacija_mapa . . . . . . . .	P Near	 0000032F _TEXT	Length= 00000080 Public C
+  Xg . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  poc  . . . . . . . . . . . . .	L Near	 00000344 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00000377 _TEXT	
+  pad  . . . . . . . . . . . . .	L Near	 0000037B _TEXT	
+igrac1 . . . . . . . . . . . . .	P Near	 00001E30 _TEXT	Length= 00000228 Public C
+  poc  . . . . . . . . . . . . .	L Near	 00001E56 _TEXT	
+  pisi_poz . . . . . . . . . . .	L Near	 00001E82 _TEXT	
+  pisi_kon . . . . . . . . . . .	L Near	 00001E84 _TEXT	
+  opet . . . . . . . . . . . . .	L Near	 00001ED1 _TEXT	
+  drugacije  . . . . . . . . . .	L Near	 00001EE6 _TEXT	
+  levo . . . . . . . . . . . . .	L Near	 00001F1C _TEXT	
+  desno  . . . . . . . . . . . .	L Near	 00001F34 _TEXT	
+  puc  . . . . . . . . . . . . .	L Near	 00001F4C _TEXT	
+  gore . . . . . . . . . . . . .	L Near	 00001F5B _TEXT	
+  obrni  . . . . . . . . . . . .	L Near	 00001F96 _TEXT	
+  dole . . . . . . . . . . . . .	L Near	 00001FB8 _TEXT	
+  obrni2 . . . . . . . . . . . .	L Near	 00001FC2 _TEXT	
+  obrni1 . . . . . . . . . . . .	L Near	 00001FE4 _TEXT	
+  snagagore  . . . . . . . . . .	L Near	 00002008 _TEXT	
+  snagadole  . . . . . . . . . .	L Near	 0000202E _TEXT	
+igrac2 . . . . . . . . . . . . .	P Near	 00002058 _TEXT	Length= 00000228 Public C
+  poc  . . . . . . . . . . . . .	L Near	 0000207E _TEXT	
+  pisi_poz . . . . . . . . . . .	L Near	 000020AA _TEXT	
+  pisi_kon . . . . . . . . . . .	L Near	 000020AC _TEXT	
+  opet . . . . . . . . . . . . .	L Near	 000020F9 _TEXT	
+  produzi  . . . . . . . . . . .	L Near	 0000210E _TEXT	
+  levo . . . . . . . . . . . . .	L Near	 00002144 _TEXT	
+  desno  . . . . . . . . . . . .	L Near	 0000215C _TEXT	
+  puc  . . . . . . . . . . . . .	L Near	 00002174 _TEXT	
+  gore . . . . . . . . . . . . .	L Near	 00002183 _TEXT	
+  obrni  . . . . . . . . . . . .	L Near	 000021BE _TEXT	
+  dole . . . . . . . . . . . . .	L Near	 000021E0 _TEXT	
+  obrni2 . . . . . . . . . . . .	L Near	 000021EA _TEXT	
+  obrni1 . . . . . . . . . . . .	L Near	 0000220C _TEXT	
+  snagagore  . . . . . . . . . .	L Near	 00002230 _TEXT	
+  snagadole  . . . . . . . . . .	L Near	 00002256 _TEXT	
+koordinator  . . . . . . . . . .	P Near	 00000060 _TEXT	Length= 0000001C Public C
+krajigre . . . . . . . . . . . .	P Near	 00002280 _TEXT	Length= 00000040 Public C
+  preskok  . . . . . . . . . . .	L Near	 000022A4 _TEXT	
+  dalje  . . . . . . . . . . . .	L Near	 000022AE _TEXT	
+main . . . . . . . . . . . . . .	P Near	 000022C0 _TEXT	Length= 000001CB Public STDCALL
+  biranje  . . . . . . . . . . .	L Near	 0000233B _TEXT	
+  pra  . . . . . . . . . . . . .	L Near	 00002374 _TEXT	
+  igr  . . . . . . . . . . . . .	L Near	 0000237D _TEXT	
+  opet . . . . . . . . . . . . .	L Near	 00002423 _TEXT	
+  preskok  . . . . . . . . . . .	L Near	 00002431 _TEXT	
+  opet1  . . . . . . . . . . . .	L Near	 00002467 _TEXT	
+  preskok1 . . . . . . . . . . .	L Near	 00002475 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00002484 _TEXT	
+pisitenk . . . . . . . . . . . .	P Near	 000004FC _TEXT	Length= 0000008E Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  uzmiprvi . . . . . . . . . . .	L Near	 0000051E _TEXT	
+  obrada . . . . . . . . . . . .	L Near	 00000530 _TEXT	
+pozicija1  . . . . . . . . . . .	P Near	 00000724 _TEXT	Length= 00000164 Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  poc  . . . . . . . . . . . . .	L Near	 00000784 _TEXT	
+  plus . . . . . . . . . . . . .	L Near	 000007B9 _TEXT	
+  pomeraj  . . . . . . . . . . .	L Near	 000007CE _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 0000087F _TEXT	
+pozicija2  . . . . . . . . . . .	P Near	 00000888 _TEXT	Length= 0000016B Public C
+  Xt . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yt . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  poc  . . . . . . . . . . . . .	L Near	 000008EF _TEXT	
+  plus . . . . . . . . . . . . .	L Near	 00000924 _TEXT	
+  pomeraj  . . . . . . . . . . .	L Near	 00000939 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 000009EA _TEXT	
+pravi  . . . . . . . . . . . . .	P Near	 0000058A _TEXT	Length= 0000019A Public C
+  ponovi . . . . . . . . . . . .	L Near	 000005BB _TEXT	
+  dole . . . . . . . . . . . . .	L Near	 0000060B _TEXT	
+  smX  . . . . . . . . . . . . .	L Near	 00000622 _TEXT	
+  gore . . . . . . . . . . . . .	L Near	 0000062A _TEXT	
+  poX  . . . . . . . . . . . . .	L Near	 0000063F _TEXT	
+  levo . . . . . . . . . . . . .	L Near	 0000064B _TEXT	
+  poY  . . . . . . . . . . . . .	L Near	 00000666 _TEXT	
+  desno  . . . . . . . . . . . .	L Near	 00000678 _TEXT	
+  smY  . . . . . . . . . . . . .	L Near	 00000693 _TEXT	
+  teren  . . . . . . . . . . . .	L Near	 000006A5 _TEXT	
+  brisi  . . . . . . . . . . . .	L Near	 000006D5 _TEXT	
+  napusti  . . . . . . . . . . .	L Near	 000006F8 _TEXT	
+printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+pucanj1  . . . . . . . . . . . .	P Near	 000015AB _TEXT	Length= 0000038B Public C
+  Xp . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yp . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  Xb . . . . . . . . . . . . . .	Byte	 bp + 00000010
+  Yb . . . . . . . . . . . . . .	Byte	 bp + 00000014
+  ceo_deo  . . . . . . . . . . .	Byte	 bp + 00000018
+  delta_x  . . . . . . . . . . .	Byte	 bp + 0000001C
+  delta_y  . . . . . . . . . . .	Byte	 bp + 00000020
+  skok . . . . . . . . . . . . .	L Near	 000015CB _TEXT	
+  skok1  . . . . . . . . . . . .	L Near	 000015D2 _TEXT	
+  poc  . . . . . . . . . . . . .	L Near	 00001676 _TEXT	
+  dalje2 . . . . . . . . . . . .	L Near	 000016A6 _TEXT	
+  provera2 . . . . . . . . . . .	L Near	 000016C2 _TEXT	
+  preskok  . . . . . . . . . . .	L Near	 000016F4 _TEXT	
+  xvecey . . . . . . . . . . . .	L Near	 0000170D _TEXT	
+  dalje1 . . . . . . . . . . . .	L Near	 00001725 _TEXT	
+  rast . . . . . . . . . . . . .	L Near	 00001733 _TEXT	
+  nastavi  . . . . . . . . . . .	L Near	 00001736 _TEXT	
+  provera1 . . . . . . . . . . .	L Near	 0000174A _TEXT	
+  preskok1 . . . . . . . . . . .	L Near	 0000177B _TEXT	
+  provera_y  . . . . . . . . . .	L Near	 00001794 _TEXT	
+  vrt  . . . . . . . . . . . . .	L Near	 000017A0 _TEXT	
+  preskok2 . . . . . . . . . . .	L Near	 000017D7 _TEXT	
+  provera_x  . . . . . . . . . .	L Near	 000017FC _TEXT	
+  vrt1 . . . . . . . . . . . . .	L Near	 00001808 _TEXT	
+  rast1  . . . . . . . . . . . .	L Near	 00001816 _TEXT	
+  nastavi1 . . . . . . . . . . .	L Near	 00001819 _TEXT	
+  preskok3 . . . . . . . . . . .	L Near	 0000184C _TEXT	
+  x_je_0 . . . . . . . . . . . .	L Near	 0000186D _TEXT	
+  skok_dalje . . . . . . . . . .	L Near	 00001887 _TEXT	
+  preskok4 . . . . . . . . . . .	L Near	 000018BC _TEXT	
+  smanji_brzinu  . . . . . . . .	L Near	 000018D5 _TEXT	
+  rast3  . . . . . . . . . . . .	L Near	 000018E3 _TEXT	
+  nastavi3 . . . . . . . . . . .	L Near	 000018E6 _TEXT	
+  pomeranjemanjeg1 . . . . . . .	L Near	 000018F3 _TEXT	
+  pomeranjemanjeg2 . . . . . . .	L Near	 00001901 _TEXT	
+  rast2  . . . . . . . . . . . .	L Near	 0000190F _TEXT	
+  nastavi2 . . . . . . . . . . .	L Near	 00001912 _TEXT	
+  ceoinc1  . . . . . . . . . . .	L Near	 0000191C _TEXT	
+  ceoinc2  . . . . . . . . . . .	L Near	 00001924 _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 0000192C _TEXT	
+pucanj2  . . . . . . . . . . . .	P Near	 00001936 _TEXT	Length= 00000389 Public C
+  Xp . . . . . . . . . . . . . .	Byte	 bp + 00000008
+  Yp . . . . . . . . . . . . . .	Word	 bp + 0000000C
+  Xb . . . . . . . . . . . . . .	Byte	 bp + 00000010
+  Yb . . . . . . . . . . . . . .	Byte	 bp + 00000014
+  ceo_deo  . . . . . . . . . . .	Byte	 bp + 00000018
+  delta_x  . . . . . . . . . . .	Byte	 bp + 0000001C
+  delta_y  . . . . . . . . . . .	Byte	 bp + 00000020
+  skok . . . . . . . . . . . . .	L Near	 00001956 _TEXT	
+  skok1  . . . . . . . . . . . .	L Near	 0000195D _TEXT	
+  poc  . . . . . . . . . . . . .	L Near	 000019FF _TEXT	
+  dalje2 . . . . . . . . . . . .	L Near	 00001A2F _TEXT	
+  provera2 . . . . . . . . . . .	L Near	 00001A4B _TEXT	
+  preskok  . . . . . . . . . . .	L Near	 00001A7D _TEXT	
+  xvecey . . . . . . . . . . . .	L Near	 00001A96 _TEXT	
+  dalje1 . . . . . . . . . . . .	L Near	 00001AAE _TEXT	
+  rast . . . . . . . . . . . . .	L Near	 00001ABC _TEXT	
+  nastavi  . . . . . . . . . . .	L Near	 00001ABF _TEXT	
+  provera1 . . . . . . . . . . .	L Near	 00001AD3 _TEXT	
+  preskok1 . . . . . . . . . . .	L Near	 00001B04 _TEXT	
+  provera_y  . . . . . . . . . .	L Near	 00001B1D _TEXT	
+  vrt  . . . . . . . . . . . . .	L Near	 00001B29 _TEXT	
+  preskok2 . . . . . . . . . . .	L Near	 00001B60 _TEXT	
+  provera_x  . . . . . . . . . .	L Near	 00001B85 _TEXT	
+  vrt1 . . . . . . . . . . . . .	L Near	 00001B91 _TEXT	
+  rast1  . . . . . . . . . . . .	L Near	 00001B9F _TEXT	
+  nastavi1 . . . . . . . . . . .	L Near	 00001BA2 _TEXT	
+  preskok3 . . . . . . . . . . .	L Near	 00001BD5 _TEXT	
+  x_je_0 . . . . . . . . . . . .	L Near	 00001BF6 _TEXT	
+  skok_dalje . . . . . . . . . .	L Near	 00001C10 _TEXT	
+  preskok4 . . . . . . . . . . .	L Near	 00001C45 _TEXT	
+  smanji_brzinu  . . . . . . . .	L Near	 00001C5E _TEXT	
+  rast3  . . . . . . . . . . . .	L Near	 00001C6C _TEXT	
+  nastavi3 . . . . . . . . . . .	L Near	 00001C6F _TEXT	
+  pomeranjemanjeg1 . . . . . . .	L Near	 00001C7C _TEXT	
+  pomeranjemanjeg2 . . . . . . .	L Near	 00001C8A _TEXT	
+  rast2  . . . . . . . . . . . .	L Near	 00001C98 _TEXT	
+  nastavi2 . . . . . . . . . . .	L Near	 00001C9B _TEXT	
+  ceoinc1  . . . . . . . . . . .	L Near	 00001CA5 _TEXT	
+  ceoinc2  . . . . . . . . . . .	L Near	 00001CAD _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00001CB5 _TEXT	
+scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+snimanje . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000037 Public C
+ucitavanje . . . . . . . . . . .	P Near	 00000037 _TEXT	Length= 00000029 Public STDCALL
+udar . . . . . . . . . . . . . .	P Near	 00001CBF _TEXT	Length= 00000171 Public C
+  nije_udar  . . . . . . . . . .	L Near	 00001D41 _TEXT	
+  preskok  . . . . . . . . . . .	L Near	 00001D71 _TEXT	
+  udar_brda  . . . . . . . . . .	L Near	 00001D76 _TEXT	
+  dalje  . . . . . . . . . . . .	L Near	 00001DBF _TEXT	
+  dalje2 . . . . . . . . . . . .	L Near	 00001DC4 _TEXT	
+  smanji_zivot . . . . . . . . .	L Near	 00001DD2 _TEXT	
+  produzi  . . . . . . . . . . .	L Near	 00001DEF _TEXT	
+  z2 . . . . . . . . . . . . . .	L Near	 00001DF4 _TEXT	
+  produzi1 . . . . . . . . . . .	L Near	 00001E08 _TEXT	
+  sledeci  . . . . . . . . . . .	L Near	 00001E0D _TEXT	
+  igra_drugi . . . . . . . . . .	L Near	 00001E1B _TEXT	
+  kraj . . . . . . . . . . . . .	L Near	 00001E20 _TEXT	
+wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
+CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
+CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
+CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
+CTRL_MASK  . . . . . . . . . . .	Number	 0000000Ch   
+CreateFile . . . . . . . . . . .	Text   	 CreateFileA
+DO_NOT_SHARE . . . . . . . . . .	Number	 00000000h   
+ENABLE_ECHO_INPUT  . . . . . . .	Number	 00000004h   
+ENABLE_LINE_INPUT  . . . . . . .	Number	 00000002h   
+ENABLE_MOUSE_INPUT . . . . . . .	Number	 00000010h   
+ENABLE_PROCESSED_INPUT . . . . .	Number	 00000001h   
+ENABLE_PROCESSED_OUTPUT  . . . .	Number	 00000001h   
+ENABLE_WINDOW_INPUT  . . . . . .	Number	 00000008h   
+ENABLE_WRAP_AT_EOL_OUTPUT  . . .	Number	 00000002h   
+ENHANCED_KEY . . . . . . . . . .	Number	 00000100h   
+FALSE  . . . . . . . . . . . . .	Number	 00000000h   
+FILE_APPEND_DATA . . . . . . . .	Number	 00000004h   
+FILE_ATTRIBUTE_ARCHIVE . . . . .	Number	 00000020h   
+FILE_ATTRIBUTE_COMPRESSED  . . .	Number	 00000800h   
+FILE_ATTRIBUTE_DEVICE  . . . . .	Number	 00000040h   
+FILE_ATTRIBUTE_DIRECTORY . . . .	Number	 00000010h   
+FILE_ATTRIBUTE_ENCRYPTED . . . .	Number	 00004000h   
+FILE_ATTRIBUTE_HIDDEN  . . . . .	Number	 00000002h   
+FILE_ATTRIBUTE_NORMAL  . . . . .	Number	 00000080h   
+FILE_ATTRIBUTE_NOT_CONTENT_INDEXED .	Number	 00002000h   
+FILE_ATTRIBUTE_OFFLINE . . . . .	Number	 00001000h   
+FILE_ATTRIBUTE_READONLY  . . . .	Number	 00000001h   
+FILE_ATTRIBUTE_REPARSE_POINT . .	Number	 00000400h   
+FILE_ATTRIBUTE_SPARSE_FILE . . .	Number	 00000200h   
+FILE_ATTRIBUTE_SYSTEM  . . . . .	Number	 00000004h   
+FILE_ATTRIBUTE_TEMPORARY . . . .	Number	 00000100h   
+FILE_BEGIN . . . . . . . . . . .	Number	 00000000h   
+FILE_CURRENT . . . . . . . . . .	Number	 00000001h   
+FILE_DELETE_CHILD  . . . . . . .	Number	 00000040h   
+FILE_END . . . . . . . . . . . .	Number	 00000002h   
+FILE_READ_DATA . . . . . . . . .	Number	 00000001h   
+FILE_SHARE_DELETE  . . . . . . .	Number	 00000004h   
+FILE_SHARE_READ  . . . . . . . .	Number	 00000001h   
+FILE_SHARE_WRITE . . . . . . . .	Number	 00000002h   
+FILE_WRITE_DATA  . . . . . . . .	Number	 00000002h   
+FOCUS_EVENT  . . . . . . . . . .	Number	 00000010h   
+FORMAT_MESSAGE_ALLOCATE_BUFFER .	Number	 00000100h   
+FORMAT_MESSAGE_FROM_SYSTEM . . .	Number	 00001000h   
+FormatMessage  . . . . . . . . .	Text   	 FormatMessageA
+GENERIC_ALL  . . . . . . . . . .	Number	 10000000h   
+GENERIC_EXECUTE  . . . . . . . .	Number	 20000000h   
+GENERIC_READ . . . . . . . . . .	Number	 -80000000h   
+GENERIC_WRITE  . . . . . . . . .	Number	 40000000h   
+GetCommandLine . . . . . . . . .	Text   	 GetCommandLineA
+HANDLE . . . . . . . . . . . . .	Text   	 DWORD
+HEAP_GENERATE_EXCEPTIONS . . . .	Number	 00000004h   
+HEAP_GROWABLE  . . . . . . . . .	Number	 00000002h   
+HEAP_NO_SERIALIZE  . . . . . . .	Number	 00000001h   
+HEAP_REALLOC_IN_PLACE_ONLY . . .	Number	 00000010h   
+HEAP_ZERO_MEMORY . . . . . . . .	Number	 00000008h   
+IDABORT  . . . . . . . . . . . .	Number	 00000003h   
+IDCANCEL . . . . . . . . . . . .	Number	 00000002h   
+IDCLOSE  . . . . . . . . . . . .	Number	 00000008h   
+IDCONTINUE . . . . . . . . . . .	Number	 0000000Bh   
+IDHELP . . . . . . . . . . . . .	Number	 00000009h   
+IDIGNORE . . . . . . . . . . . .	Number	 00000005h   
+IDNO . . . . . . . . . . . . . .	Number	 00000007h   
+IDOK . . . . . . . . . . . . . .	Number	 00000001h   
+IDRETRY  . . . . . . . . . . . .	Number	 00000004h   
+IDTIMEOUT  . . . . . . . . . . .	Number	 00007D00h   
+IDTRYAGAIN . . . . . . . . . . .	Number	 0000000Ah   
+IDYES  . . . . . . . . . . . . .	Number	 00000006h   
+INVALID_HANDLE_VALUE . . . . . .	Number	 -00000001h   
+KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h   
+KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
+KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
+LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
+LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
+MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
+MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
+MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
+MB_DEFBUTTON1  . . . . . . . . .	Number	 00000000h   
+MB_DEFBUTTON2  . . . . . . . . .	Number	 00000100h   
+MB_DEFBUTTON3  . . . . . . . . .	Number	 00000200h   
+MB_DEFBUTTON4  . . . . . . . . .	Number	 00000300h   
+MB_HELP  . . . . . . . . . . . .	Number	 00004000h   
+MB_ICONASTERISK  . . . . . . . .	Number	 00000040h   
+MB_ICONERROR . . . . . . . . . .	Number	 00000010h   
+MB_ICONEXCLAMATION . . . . . . .	Number	 00000030h   
+MB_ICONHAND  . . . . . . . . . .	Number	 00000010h   
+MB_ICONINFORMATION . . . . . . .	Number	 00000040h   
+MB_ICONQUESTION  . . . . . . . .	Number	 00000020h   
+MB_ICONSTOP  . . . . . . . . . .	Number	 00000010h   
+MB_ICONWARNING . . . . . . . . .	Number	 00000030h   
+MB_OKCANCEL  . . . . . . . . . .	Number	 00000001h   
+MB_OK  . . . . . . . . . . . . .	Number	 00000000h   
+MB_RETRYCANCEL . . . . . . . . .	Number	 00000005h   
+MB_SYSTEMMODAL . . . . . . . . .	Number	 00001000h   
+MB_TASKMODAL . . . . . . . . . .	Number	 00002000h   
+MB_USERICON  . . . . . . . . . .	Number	 00000080h   
+MB_YESNOCANCEL . . . . . . . . .	Number	 00000003h   
+MB_YESNO . . . . . . . . . . . .	Number	 00000004h   
+MENU_EVENT . . . . . . . . . . .	Number	 00000008h   
+MOUSE_EVENT  . . . . . . . . . .	Number	 00000002h   
+MessageBox . . . . . . . . . . .	Text   	 MessageBoxA
+NULL . . . . . . . . . . . . . .	Number	 00000000h   
+NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
+OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
+OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
+PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
+RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
+RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
+ReadConsoleInput . . . . . . . .	Text   	 ReadConsoleInputA
+ReadConsole  . . . . . . . . . .	Text   	 ReadConsoleA
+SCROLLLOCK_ON  . . . . . . . . .	Number	 00000040h   
+SHIFT_MASK . . . . . . . . . . .	Number	 00000010h   
+SHIFT_PRESSED  . . . . . . . . .	Number	 00000010h   
+STD_ERROR_HANDLE . . . . . . . .	Number	 -0000000Ch   
+STD_INPUT_HANDLE . . . . . . . .	Number	 -0000000Ah   
+STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh   
+SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
+TAB  . . . . . . . . . . . . . .	Number	 00000009h   
+TRUE . . . . . . . . . . . . . .	Number	 00000001h   
+TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
+VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
+VK_12  . . . . . . . . . . . . .	Number	 000000BBh   
+VK_ADD . . . . . . . . . . . . .	Number	 0000006Bh   
+VK_BACK  . . . . . . . . . . . .	Number	 00000008h   
+VK_CANCEL  . . . . . . . . . . .	Number	 00000003h   
+VK_CAPITAL . . . . . . . . . . .	Number	 00000014h   
+VK_CLEAR . . . . . . . . . . . .	Number	 0000000Ch   
+VK_CONTROL . . . . . . . . . . .	Number	 00000011h   
+VK_DECIMAL . . . . . . . . . . .	Number	 0000006Eh   
+VK_DELETE  . . . . . . . . . . .	Number	 0000002Eh   
+VK_DIVIDE  . . . . . . . . . . .	Number	 0000006Fh   
+VK_DOWN  . . . . . . . . . . . .	Number	 00000028h   
+VK_END . . . . . . . . . . . . .	Number	 00000023h   
+VK_ESCAPE  . . . . . . . . . . .	Number	 0000001Bh   
+VK_EXECUTE . . . . . . . . . . .	Number	 0000002Bh   
+VK_F10 . . . . . . . . . . . . .	Number	 00000079h   
+VK_F11 . . . . . . . . . . . . .	Number	 0000007Ah   
+VK_F12 . . . . . . . . . . . . .	Number	 0000007Bh   
+VK_F13 . . . . . . . . . . . . .	Number	 0000007Ch   
+VK_F14 . . . . . . . . . . . . .	Number	 0000007Dh   
+VK_F15 . . . . . . . . . . . . .	Number	 0000007Eh   
+VK_F16 . . . . . . . . . . . . .	Number	 0000007Fh   
+VK_F17 . . . . . . . . . . . . .	Number	 00000080h   
+VK_F18 . . . . . . . . . . . . .	Number	 00000081h   
+VK_F19 . . . . . . . . . . . . .	Number	 00000082h   
+VK_F1  . . . . . . . . . . . . .	Number	 00000070h   
+VK_F20 . . . . . . . . . . . . .	Number	 00000083h   
+VK_F21 . . . . . . . . . . . . .	Number	 00000084h   
+VK_F22 . . . . . . . . . . . . .	Number	 00000085h   
+VK_F23 . . . . . . . . . . . . .	Number	 00000086h   
+VK_F24 . . . . . . . . . . . . .	Number	 00000087h   
+VK_F2  . . . . . . . . . . . . .	Number	 00000071h   
+VK_F3  . . . . . . . . . . . . .	Number	 00000072h   
+VK_F4  . . . . . . . . . . . . .	Number	 00000073h   
+VK_F5  . . . . . . . . . . . . .	Number	 00000074h   
+VK_F6  . . . . . . . . . . . . .	Number	 00000075h   
+VK_F7  . . . . . . . . . . . . .	Number	 00000076h   
+VK_F8  . . . . . . . . . . . . .	Number	 00000077h   
+VK_F9  . . . . . . . . . . . . .	Number	 00000078h   
+VK_HELP  . . . . . . . . . . . .	Number	 0000002Fh   
+VK_HOME  . . . . . . . . . . . .	Number	 00000024h   
+VK_INSERT  . . . . . . . . . . .	Number	 0000002Dh   
+VK_LBUTTON . . . . . . . . . . .	Number	 00000001h   
+VK_LCONTROL  . . . . . . . . . .	Number	 000000A2h   
+VK_LEFT  . . . . . . . . . . . .	Number	 00000025h   
+VK_LMENU . . . . . . . . . . . .	Number	 000000A4h   
+VK_LSHIFT  . . . . . . . . . . .	Number	 000000A0h   
+VK_MENU  . . . . . . . . . . . .	Number	 00000012h   
+VK_MULTIPLY  . . . . . . . . . .	Number	 0000006Ah   
+VK_NEXT  . . . . . . . . . . . .	Number	 00000022h   
+VK_NUMLOCK . . . . . . . . . . .	Number	 00000090h   
+VK_NUMPAD0 . . . . . . . . . . .	Number	 00000060h   
+VK_NUMPAD1 . . . . . . . . . . .	Number	 00000061h   
+VK_NUMPAD2 . . . . . . . . . . .	Number	 00000062h   
+VK_NUMPAD3 . . . . . . . . . . .	Number	 00000063h   
+VK_NUMPAD4 . . . . . . . . . . .	Number	 00000064h   
+VK_NUMPAD5 . . . . . . . . . . .	Number	 00000065h   
+VK_NUMPAD6 . . . . . . . . . . .	Number	 00000066h   
+VK_NUMPAD7 . . . . . . . . . . .	Number	 00000067h   
+VK_NUMPAD8 . . . . . . . . . . .	Number	 00000068h   
+VK_NUMPAD9 . . . . . . . . . . .	Number	 00000069h   
+VK_PAUSE . . . . . . . . . . . .	Number	 00000013h   
+VK_PRINT . . . . . . . . . . . .	Number	 0000002Ah   
+VK_PRIOR . . . . . . . . . . . .	Number	 00000021h   
+VK_RBUTTON . . . . . . . . . . .	Number	 00000002h   
+VK_RCONTROL  . . . . . . . . . .	Number	 000000A3h   
+VK_RETURN  . . . . . . . . . . .	Number	 0000000Dh   
+VK_RIGHT . . . . . . . . . . . .	Number	 00000027h   
+VK_RMENU . . . . . . . . . . . .	Number	 000000A5h   
+VK_RSHIFT  . . . . . . . . . . .	Number	 000000A1h   
+VK_SCROLL  . . . . . . . . . . .	Number	 00000091h   
+VK_SEPARATER . . . . . . . . . .	Number	 0000006Ch   
+VK_SHIFT . . . . . . . . . . . .	Number	 00000010h   
+VK_SNAPSHOT  . . . . . . . . . .	Number	 0000002Ch   
+VK_SPACE . . . . . . . . . . . .	Number	 00000020h   
+VK_SUBTRACT  . . . . . . . . . .	Number	 0000006Dh   
+VK_TAB . . . . . . . . . . . . .	Number	 00000009h   
+VK_UP  . . . . . . . . . . . . .	Number	 00000026h   
+WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
+WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
+WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+X  . . . . . . . . . . . . . . .	Byte	 00000001 _DATA	
+Y1 . . . . . . . . . . . . . . .	Byte	 00000013 _DATA	
+Y  . . . . . . . . . . . . . . .	Word	 00000002 _DATA	
+black  . . . . . . . . . . . . .	Number	 00000000h   
+blue . . . . . . . . . . . . . .	Number	 00000001h   
+brown  . . . . . . . . . . . . .	Number	 00000006h   
+bytesWritten . . . . . . . . . .	DWord	 00000E76 _DATA	
+cyan . . . . . . . . . . . . . .	Number	 00000003h   
+donja_granica  . . . . . . . . .	Byte	 00000000 _DATA	
+exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
+fileHandle . . . . . . . . . . .	DWord	 00000E6E _DATA	
+filename . . . . . . . . . . . .	Byte	 00000E63 _DATA	
+gray . . . . . . . . . . . . . .	Number	 00000008h   
+green  . . . . . . . . . . . . .	Number	 00000002h   
+igra . . . . . . . . . . . . . .	Byte	 000008DD _DATA	
+karakter . . . . . . . . . . . .	Byte	 000008F9 _DATA	
+kasnjenje  . . . . . . . . . . .	Byte	 000008D8 _DATA	
+lightBlue  . . . . . . . . . . .	Number	 00000009h   
+lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
+lightGray  . . . . . . . . . . .	Number	 00000007h   
+lightGreen . . . . . . . . . . .	Number	 0000000Ah   
+lightMagenta . . . . . . . . . .	Number	 0000000Dh   
+lightRed . . . . . . . . . . . .	Number	 0000000Ch   
+magenta  . . . . . . . . . . . .	Number	 00000005h   
+niz  . . . . . . . . . . . . . .	Byte	 00000018 _DATA	
+pom  . . . . . . . . . . . . . .	Word	 00000016 _DATA	
+potez  . . . . . . . . . . . . .	Byte	 000008E0 _DATA	
+red  . . . . . . . . . . . . . .	Number	 00000004h   
+snaga1 . . . . . . . . . . . . .	Byte	 000008DB _DATA	
+snaga2 . . . . . . . . . . . . .	Byte	 000008DC _DATA	
+step . . . . . . . . . . . . . .	Byte	 00000012 _DATA	
+str10  . . . . . . . . . . . . .	Byte	 00000AC7 _DATA	
+str11  . . . . . . . . . . . . .	Byte	 00000BD4 _DATA	
+str12  . . . . . . . . . . . . .	Byte	 00000C97 _DATA	
+str13  . . . . . . . . . . . . .	Byte	 00000CF9 _DATA	
+str14  . . . . . . . . . . . . .	Byte	 00000D4A _DATA	
+str1 . . . . . . . . . . . . . .	Byte	 000008E1 _DATA	
+str2 . . . . . . . . . . . . . .	Byte	 000008ED _DATA	
+str3 . . . . . . . . . . . . . .	Byte	 000008FA _DATA	
+str4 . . . . . . . . . . . . . .	Byte	 00000905 _DATA	
+str5 . . . . . . . . . . . . . .	Byte	 00000918 _DATA	
+str6 . . . . . . . . . . . . . .	Byte	 0000092B _DATA	
+str7 . . . . . . . . . . . . . .	Byte	 0000093E _DATA	
+str8 . . . . . . . . . . . . . .	Byte	 00000960 _DATA	
+str9 . . . . . . . . . . . . . .	Byte	 000009BF _DATA	
+stringLength . . . . . . . . . .	DWord	 00000E72 _DATA	
+ugao1  . . . . . . . . . . . . .	Word	 0000000E _DATA	
+ugao2  . . . . . . . . . . . . .	Word	 00000010 _DATA	
+ugao_znak1 . . . . . . . . . . .	Byte	 000008DE _DATA	
+ugao_znak2 . . . . . . . . . . .	Byte	 000008DF _DATA	
+white  . . . . . . . . . . . . .	Number	 0000000Fh   
+wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
+x_bilo_0 . . . . . . . . . . . .	Byte	 0000000D _DATA	
+xgr  . . . . . . . . . . . . . .	Byte	 0000000A _DATA	
+xt1  . . . . . . . . . . . . . .	Byte	 00000004 _DATA	
+xt2  . . . . . . . . . . . . . .	Byte	 00000007 _DATA	
+yellow . . . . . . . . . . . . .	Number	 0000000Eh   
+ygr  . . . . . . . . . . . . . .	Word	 0000000B _DATA	
+yt1  . . . . . . . . . . . . . .	Word	 00000005 _DATA	
+yt2  . . . . . . . . . . . . . .	Word	 00000008 _DATA	
+zed  . . . . . . . . . . . . . .	Word	 00000014 _DATA	
+zivot1 . . . . . . . . . . . . .	Byte	 000008D9 _DATA	
+zivot2 . . . . . . . . . . . . .	Byte	 000008DA _DATA	
+
+	   1 Warnings
+	   0 Errors
